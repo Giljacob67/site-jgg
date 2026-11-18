@@ -1,6 +1,8 @@
 # Plano de virada do DNS — jgggroup.com.br
 
-**Status: aprovado por Gilberto em 18/11/2026.**
+**Status: executado em 18/11/2026, entre 15:58 e 16:03 (horário de Brasília), com aprovação de Gilberto.**
+
+Resultado: apex e www no Worker `site-jgg`; rotas criadas pela API e declaradas em `wrangler.jsonc`; formulário de teste entregue em contato@ (Resend: delivered); Web Analytics ativo (instalação automática). Observação até 25/11/2026; depois, remover o domínio no ChatGPT Sites e os TXT de verificação (com aprovação).
 
 Zona: `jgggroup.com.br` (Cloudflare, plano Free). Estado lido em 18/11/2026.
 

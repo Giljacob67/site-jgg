@@ -5,6 +5,10 @@
   "compatibility_date": "2026-11-01",
   "workers_dev": true,
   "preview_urls": false,
+  "routes": [
+    { "pattern": "jgggroup.com.br/*", "zone_name": "jgggroup.com.br" },
+    { "pattern": "www.jgggroup.com.br/*", "zone_name": "jgggroup.com.br" }
+  ],
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
@@ -21,5 +25,5 @@
   "observability": { "enabled": true }
   // Segredos (nunca neste arquivo): wrangler secret put RESEND_API_KEY
   // Opcionais: AUTOMATION_WEBHOOK_URL, AUTOMATION_WEBHOOK_SECRET
-  // Domínio real: só depois de aprovado — ver docs/virada-dns.md
+  // Domínio real ligado em 18/11/2026 — ver docs/virada-dns.md
 }
