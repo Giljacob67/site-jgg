@@ -33,6 +33,6 @@ export const cases = [
     decision: 'O STJ entendeu que a perda da propriedade do imóvel pelo arrendador, por decisão judicial, extinguiu o contrato de arrendamento no caso examinado.',
     context: 'O acórdão distingue a perda da propriedade das hipóteses de alienação ou imposição de ônus real tratadas no Estatuto da Terra.',
     source: 'Inteiro teor do acórdão no STJ',
-    url: 'https://scon.stj.jus.br/SCON/GetInteiroTeorDoAcordao?num_registro=202404701295',
+    url: 'https://processo.stj.jus.br/processo/julgamento/eletronico/documento/?documento_sequencial=358250941&documento_tipo=integra&publicacao_data=20260213&registro_numero=202404701295',
   },
 ];

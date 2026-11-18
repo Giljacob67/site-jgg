@@ -13,7 +13,7 @@ import { cases } from '../data/jurisprudencia';
     <main class="legal-page shell">
       <p class="eyebrow">Fontes oficiais</p>
       <h1>Jurisprudência agrária</h1>
-      <p>Decisões do Superior Tribunal de Justiça sobre a atividade rural. Comentários em revisão editorial.</p>
+      <p>Decisões do Superior Tribunal de Justiça sobre a atividade rural.</p>
       {cases.map((item) => (
         <article class="agro-case" id={item.slug}>
           <p class="agro-meta">STJ · {item.identifier} · {item.panel}</p>
