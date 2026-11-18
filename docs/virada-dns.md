@@ -1,6 +1,6 @@
 # Plano de virada do DNS — jgggroup.com.br
 
-**Status: aguardando aprovação de Gilberto. Nada abaixo foi executado.**
+**Status: aprovado por Gilberto em 18/11/2026.**
 
 Zona: `jgggroup.com.br` (Cloudflare, plano Free). Estado lido em 18/11/2026.
 
@@ -18,10 +18,10 @@ Zona: `jgggroup.com.br` (Cloudflare, plano Free). Estado lido em 18/11/2026.
 
 ## Antes da virada
 
-1. Aprovar os textos marcados como rascunho em `docs/migracao.md`.
-2. Configurar o envio do formulário: `npx wrangler secret put RESEND_API_KEY` e testar na prévia.
-3. Exportar os leads gravados no ChatGPT Sites (`/admin` do site atual). Eles ficam no banco D1 do ChatGPT Sites e **não** vêm para o site novo.
-4. Decidir se o webhook de automação (`AUTOMATION_WEBHOOK_URL`) do site antigo continua. Se sim, configurar o mesmo endereço e segredo no Worker novo.
+1. ✓ Textos aprovados (`docs/migracao.md`).
+2. ✓ RESEND_API_KEY configurada e testada na prévia.
+3. ✓ Leads antigos: Gilberto decidiu não exportar.
+4. ✓ Webhook: descartado.
 5. Escolher um horário de pouco acesso. Duração prevista: 10 minutos de trabalho e até 5 minutos de propagação (TTL automático = 300 s).
 
 ## Ordem da virada

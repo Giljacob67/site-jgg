@@ -44,18 +44,10 @@ Nenhuma URL pública indexável mudou; por isso não há tabela de redirects de 
 10. **Simuladores.** O resultado só aparece depois que as taxas (ou a remuneração) são preenchidas. Antes, campo vazio contava como 0%.
 11. **Artigos:** "← Voltar ao Agro Radar" e a etiqueta do tema ficavam colados; agora estão em linhas separadas.
 
-## Textos novos — rascunho para aprovação
+## Decisões de Gilberto (18/11/2026)
 
-Nenhum é texto jurídico. Todos estão na prévia e podem voltar ao original.
-
-| Onde | Original | Rascunho |
-|---|---|---|
-| Triagem, mensagem de sucesso | "As informações foram registradas. O link do relatório informativo fica disponível por sete dias e a equipe poderá retornar pelos dados informados." | "As informações foram enviadas à equipe, que poderá retornar pelos dados informados. O relatório informativo em PDF pode ser baixado agora, neste navegador." |
-| Triagem, campo de e-mail | "E-mail para receber o relatório *" | "E-mail *" |
-| Rodapé do PDF | "Conteúdo informativo. Cada caso exige análise própria. Link válido por 7 dias." | "Conteúdo informativo. Cada caso exige análise própria." |
-| Página 404 | (padrão do Next, em inglês) | "Erro 404 · Página não encontrada. · O endereço pode ter mudado. Use os atalhos abaixo." |
-
-## Pendente de decisão de Gilberto (não alterado)
-
-- **Política de Privacidade:** a frase "O link do panorama em PDF expira em sete dias." deixa de ser verdadeira no site novo. Texto de privacidade é jurídico; precisa de redação aprovada antes da virada.
-- **LinkedIn:** o link do rodapé (`linkedin.com/company/jgg-group`) leva a "Esta página não está disponível", também no site atual. Falta a URL correta.
+- **Textos novos aprovados:** mensagem de sucesso da triagem ("As informações foram enviadas à equipe, que poderá retornar pelos dados informados. O relatório informativo em PDF pode ser baixado agora, neste navegador."), rótulo "E-mail *", rodapé do PDF sem "Link válido por 7 dias" e página 404 no layout do site.
+- **Privacidade:** removida a frase "O link do panorama em PDF expira em sete dias."; data de atualização passou a 18 de novembro de 2026.
+- **LinkedIn do rodapé:** `https://www.linkedin.com/company/jgggroup` (o antigo `/company/jgg-group` não existia).
+- **Leads antigos:** não serão exportados do ChatGPT Sites. Novos leads chegam por e-mail em contato@jgggroup.com.br.
+- **Webhook de automação:** descartado.
