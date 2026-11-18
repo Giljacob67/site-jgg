@@ -20,6 +20,8 @@
   <noscript><p>Para enviar seus dados, ative o JavaScript ou use o e-mail ou o WhatsApp.</p></noscript>
 </form>
 <script>
+  import { campaignForLead } from '../scripts/campaign.js';
+
   const form = document.querySelector('form[data-contact]');
   const fields = form?.querySelector('fieldset');
   const status = form?.querySelector('[data-contact-status]');
@@ -34,7 +36,11 @@
         const response = await fetch(form.action, {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ ...Object.fromEntries(values), consent: values.get('consent') === 'true' }),
+          body: JSON.stringify({
+            ...Object.fromEntries(values),
+            consent: values.get('consent') === 'true',
+            ...campaignForLead(new URLSearchParams(location.search)),
+          }),
         });
         if (!response.ok) {
           const result: unknown = await response.json();

@@ -17,6 +17,7 @@ const first = questions[0];
 </Base>
 
 <script>
+  import { campaignForLead } from '../scripts/campaign.js';
   import { questions, verdict } from '../data/diagnostico';
   const $ = <T extends HTMLElement = HTMLElement>(s: string) => document.querySelector<T>(s)!;
   const wrap = $('[data-diag]'), bar = $('.progress'), fill = $('.progress i');
@@ -74,7 +75,7 @@ const first = questions[0];
           diagnosticLabel: verdict(score()).label,
           diagnosticScore: score(),
           diagnosticAnswers: answers(),
-          utmSource: s.get('utm_source') ?? '', utmMedium: s.get('utm_medium') ?? '', utmCampaign: s.get('utm_campaign') ?? '',
+          ...campaignForLead(s),
           origin: s.get('origem') ?? document.referrer, persona: s.get('persona') ?? '',
         }),
       });

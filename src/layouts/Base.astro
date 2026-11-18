@@ -80,5 +80,9 @@ const legalService = {
   <body>
     {import.meta.env.MODE === 'preview' && <p class="agro-preview">Prévia da JGG · Use apenas dados fictícios nos formulários.</p>}
     <slot />
+    <script>
+      import { preserveCampaignLinks } from '../scripts/campaign.js';
+      preserveCampaignLinks(new URL(location.href), document.querySelectorAll('a[href]'));
+    </script>
   </body>
 </html>
