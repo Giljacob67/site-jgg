@@ -1,0 +1,24 @@
+---
+import Base from '../../layouts/Base.astro';
+import ToolPage from '../../components/ToolPage.astro';
+---
+<Base title="Verificador de pequena propriedade rural | JGG Group" description="Compare a área do imóvel com o módulo fiscal do município e organize os requisitos legais." path="/ferramentas/pequena-propriedade">
+<ToolPage title="Enquadramento da pequena propriedade rural" intro="Informe a área do imóvel e o módulo fiscal vigente no município. O resultado é uma triagem, não uma conclusão sobre impenhorabilidade." disclaimer="Resultado geral e informativo. Não constitui parecer, laudo ou conclusão jurídica. A aplicação das normas depende dos fatos e documentos do caso.">
+<div class="calculator-grid"><label>Área total do imóvel (hectares)<input name="area" inputmode="decimal" placeholder="Ex.: 72" /></label><label>Módulo fiscal do município (hectares)<input name="modulo" inputmode="decimal" placeholder="Consulte no Incra" /></label></div><label class="calc-check"><input type="checkbox" name="familia" /> A área é trabalhada pela família</label>
+<div data-out hidden aria-live="polite"></div>
+<div class="calc-sources"><b>Fontes oficiais</b><a href="https://www.gov.br/incra/pt-br/assuntos/governanca-fundiaria/modulo-fiscal" target="_blank" rel="noreferrer">Índices básicos e módulos fiscais — Incra ↗</a><a href="https://www.planalto.gov.br/ccivil_03/leis/l8629.htm" target="_blank" rel="noreferrer">Lei nº 8.629/1993 — Planalto ↗</a></div>
+</ToolPage>
+</Base>
+<script>
+  import { num, field, render } from '../../scripts/calc';
+  const out = document.querySelector<HTMLElement>('[data-out]')!;
+  const update = () => {
+    const area = num(field('area').value), mod = num(field('modulo').value), fam = field('familia').checked;
+    if (!(area > 0 && mod > 0)) return render(out, null);
+    const count = area / mod, within = count <= 4;
+    render(out,
+      `<small>TRIAGEM INICIAL</small><h2>${count.toLocaleString('pt-BR', { maximumFractionDigits: 2 })} módulos fiscais</h2><p>${within ? 'A dimensão informada está dentro do limite de até quatro módulos fiscais usado na definição legal.' : 'A dimensão informada ultrapassa quatro módulos fiscais.'} ${fam ? 'Você indicou exploração familiar.' : 'Ainda é necessário confirmar a exploração familiar.'}</p><strong>Devem ser conferidos: titularidade, exploração familiar, conjunto de imóveis, origem da dívida, garantia e documentos do caso.</strong>`,
+      within && fam ? 'positive' : 'attention');
+  };
+  document.querySelectorAll('input').forEach((i) => i.addEventListener('input', update));
+</script>

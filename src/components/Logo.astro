@@ -1,0 +1,6 @@
+---
+interface Props { variant?: 'horizontal' | 'stacked'; class?: string }
+const { variant = 'horizontal', class: cls = '' } = Astro.props;
+const size = variant === 'horizontal' ? { width: 1582, height: 376 } : { width: 1045, height: 728 };
+---
+<img class={`official-logo ${cls}`.trim()} src={`/jgg-logo-${variant}.svg`} alt="JGG Group — Professional Solutions Firm" {...size} />

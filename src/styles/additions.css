@@ -1,0 +1,6 @@
+/* Acréscimos à folha original (src/styles/original.css não deve ser editada). */
+
+[hidden] { display: none !important; }
+
+/* No original, "← Voltar ao Agro Radar" e a etiqueta do tema ficavam colados na mesma linha. */
+.article-page > .back-link { display: block; margin-bottom: 14px; }

@@ -1,0 +1,23 @@
+---
+import Base from '../layouts/Base.astro';
+import SubHeader from '../components/SubHeader.astro';
+import { radar, radarCategories } from '../data/radar';
+---
+<Base title="JGG Agro Radar | JGG Group" description="Notícias, decisões e normas do agronegócio selecionadas em fontes oficiais e revisadas pela equipe jurídica." path="/radar">
+<main class="subpage">
+<SubHeader cta="Iniciar triagem" href="/diagnostico" fullNav />
+<section class="subpage-hero"><div class="shell"><p class="eyebrow light">JGG Agro Radar</p><h1>O que muda no campo,<br />traduzido para decisão.</h1><p>Notícias, decisões e normas selecionadas por relevância. A tecnologia monitora; a equipe jurídica revisa antes de publicar.</p></div></section>
+<section class="section shell"><div class="live-status"><i></i> Curadoria jurídica com fontes oficiais</div><div class="filters" role="group" aria-label="Filtrar por tema">{radarCategories.map((c, i) => <button type="button" class={`filter-button ${i === 0 ? 'active' : ''}`} aria-pressed={i === 0 ? 'true' : 'false'} data-filter={c}>{c}</button>)}</div><div class="radar-page-grid"><div class="feed" aria-live="polite">{radar.map((item) => <article class="feed-card" data-category={item.category}><div class="date-block"><span class="tag">{item.category}</span><p>{item.date}</p><small>{item.level}</small></div><div><h2><a href={`/radar/${item.slug}`}>{item.title}</a></h2><p>{item.summary}</p><span class="source-line">{item.source} · Conteúdo informativo</span><a href={`/radar/${item.slug}`} class="feed-read">Ler análise completa →</a></div></article>)}</div><aside class="radar-aside"><p class="eyebrow light">Boletim periódico</p><h3>Menos ruído.<br />Mais contexto.</h3><p>Solicite sua inclusão para receber, após confirmação, uma seleção dos movimentos jurídicos mais relevantes.</p><a class="button copper" href="https://wa.me/5544988335397?text=Ol%C3%A1!%20Quero%20autorizar%20e%20solicitar%20minha%20inclus%C3%A3o%20no%20boletim%20do%20JGG%20Agro%20Radar.">Solicitar inclusão</a><div class="automation-note">Monitoramento de fontes oficiais · classificação por tema · revisão humana · publicação rastreável</div></aside></div></section>
+</main>
+</Base>
+<script>
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-filter]')];
+  const cards = [...document.querySelectorAll<HTMLElement>('.feed-card')];
+  buttons.forEach((b) =>
+    b.addEventListener('click', () => {
+      const f = b.dataset.filter;
+      buttons.forEach((x) => { x.classList.toggle('active', x === b); x.setAttribute('aria-pressed', String(x === b)); });
+      cards.forEach((c) => (c.hidden = f !== 'Todos' && c.dataset.category !== f));
+    }),
+  );
+</script>

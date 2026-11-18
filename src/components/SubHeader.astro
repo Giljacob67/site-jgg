@@ -1,0 +1,7 @@
+---
+import Logo from './Logo.astro';
+import MobileNav from './MobileNav.astro';
+interface Props { cta: string; href: string; fullNav?: boolean }
+const { cta, href, fullNav = false } = Astro.props;
+---
+<div class="subnav"><header class="site-header"><a href="/" class="brand official-brand" aria-label="JGG Group — início"><Logo /></a>{fullNav && <Fragment><nav aria-label="Navegação principal"><a href="/#solucoes">Atuação</a><a href="/radar">Agro Radar</a><a href="/ferramentas">Ferramentas</a><a href="/#equipe">Equipe</a><a href="/#contato">Contato</a></nav><MobileNav /></Fragment>}<a href={href} class="header-cta">{cta}</a></header></div>

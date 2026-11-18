@@ -1,0 +1,28 @@
+---
+import Base, { SITE } from '../../layouts/Base.astro';
+import SubHeader from '../../components/SubHeader.astro';
+import { radar, type RadarItem } from '../../data/radar';
+
+export function getStaticPaths() {
+  return radar.map((item) => ({ params: { slug: item.slug }, props: { item } }));
+}
+const { item } = Astro.props as { item: RadarItem };
+const path = `/radar/${item.slug}`;
+const article = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: item.title,
+  description: item.summary,
+  datePublished: item.dateIso,
+  dateModified: item.dateIso,
+  mainEntityOfPage: SITE + path,
+  author: { '@type': 'Organization', name: 'JGG Group' },
+  publisher: { '@type': 'Organization', name: 'JGG Group' },
+};
+---
+<Base title={`${item.title} | JGG Group`} description={item.summary} path={path} og={{ title: item.title, description: item.summary, type: 'article', publishedTime: item.dateIso }} jsonLd={[article]}>
+<main class="subpage">
+<SubHeader cta="Avaliar meu cenário" href="/diagnostico" />
+<article class="article-page shell"><a href="/radar" class="back-link">← Voltar ao Agro Radar</a><span class="tag">{item.category}</span><p class="article-date"><time datetime={item.dateIso}>{item.date}</time> · {item.source}</p><h1>{item.title}</h1><p class="article-deck">{item.summary}</p>{item.sections.map((s) => <section><h2>{s.heading}</h2>{s.paragraphs.map((p) => <p>{p}</p>)}</section>)}<aside class="article-sources"><strong>Fontes oficiais consultadas</strong>{item.sources.map((s) => <a href={s.url} target="_blank" rel="noreferrer">{s.label} ↗</a>)}</aside><div class="article-disclaimer">Conteúdo geral e informativo. Não constitui consulta, parecer ou recomendação jurídica para um caso concreto.</div><a href="/diagnostico" class="button copper">Organizar meu cenário →</a></article>
+</main>
+</Base>
