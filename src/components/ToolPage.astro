@@ -1,5 +1,6 @@
 ---
+import SubHeader from './SubHeader.astro';
 interface Props { title: string; intro: string; disclaimer: string }
 const { title, intro, disclaimer } = Astro.props;
 ---
-<main class="subpage"><div class="tool-top shell"><a href="/ferramentas">← Todas as ferramentas</a><a href="/diagnostico">Diagnóstico JGG →</a></div><section class="calculator-page shell"><p class="eyebrow">Ferramenta informativa</p><h1>{title}</h1><p class="tools-lead">{intro}</p><div class="calculator-panel"><slot /></div><p class="calc-disclaimer">{disclaimer}</p></section></main>
+<main class="subpage"><SubHeader cta="Diagnóstico" href="/diagnostico" /><div class="tool-top shell"><a href="/ferramentas">← Todas as ferramentas</a><a href="/diagnostico">Diagnóstico JGG →</a></div><section class="calculator-page shell"><p class="eyebrow">Ferramenta informativa</p><h1>{title}</h1><p class="tools-lead">{intro}</p><div class="calculator-panel"><slot /></div><p class="calc-disclaimer">{disclaimer}</p></section></main>

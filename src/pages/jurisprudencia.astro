@@ -1,0 +1,30 @@
+---
+import Base from '../layouts/Base.astro';
+import SubHeader from '../components/SubHeader.astro';
+import { cases } from '../data/jurisprudencia';
+---
+<Base
+  title="Jurisprudência agrária | JGG Group"
+  description="Decisões e entendimentos do Superior Tribunal de Justiça sobre crédito rural, pequena propriedade e arrendamento."
+  path="/jurisprudencia"
+>
+  <div class="subpage">
+    <SubHeader cta="Agro Radar" href="/radar" />
+    <main class="legal-page shell">
+      <p class="eyebrow">Fontes oficiais</p>
+      <h1>Jurisprudência agrária</h1>
+      <p>Decisões do Superior Tribunal de Justiça sobre a atividade rural. Comentários em revisão editorial.</p>
+      {cases.map((item) => (
+        <article class="agro-case" id={item.slug}>
+          <p class="agro-meta">STJ · {item.identifier} · {item.panel}</p>
+          <h2>{item.title}</h2>
+          <p>Julgamento em {item.date} · Publicação em {item.published}</p>
+          <p>{item.decision}</p>
+          <p>{item.context}</p>
+          <a class="agro-text-link" href={item.url}>{item.source} <span aria-hidden="true">↗</span></a>
+        </article>
+      ))}
+      <a href="/radar" class="back-link">← Voltar ao Agro Radar</a>
+    </main>
+  </div>
+</Base>

@@ -22,6 +22,20 @@
     "LEAD_FROM": "Site JGG Group <site@jgggroup.com.br>",
     "CANONICAL_HOST": "jgggroup.com.br"
   },
+  "env": {
+    "preview": {
+      "name": "site-jgg-agro-premium",
+      "workers_dev": true,
+      "preview_urls": false,
+      "routes": [],
+      "vars": {
+        "LEAD_TO": "delivered@resend.dev",
+        "CANONICAL_HOST": "site-jgg-agro-premium.jgggroup.workers.dev",
+        "LEAD_FROM": "Site JGG Group <site@jgggroup.com.br>"
+      },
+      "ratelimits": [{ "name": "LEAD_LIMITER", "namespace_id": "1002", "simple": { "limit": 5, "period": 60 } }]
+    }
+  },
   "observability": { "enabled": true }
   // Segredos (nunca neste arquivo): wrangler secret put RESEND_API_KEY
   // Opcionais: AUTOMATION_WEBHOOK_URL, AUTOMATION_WEBHOOK_SECRET

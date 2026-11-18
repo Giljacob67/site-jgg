@@ -1,0 +1,35 @@
+---
+const { cta = 'Fale com a JGG', href = '/#contato' } = Astro.props;
+const links = [
+  ['/#agro-alerta', 'Agro Alerta'],
+  ['/#solucoes', 'Atuação'],
+  ['/radar', 'Agro Radar'],
+  ['/jurisprudencia', 'Jurisprudência'],
+  ['/ferramentas', 'Ferramentas'],
+  ['/#equipe', 'Equipe'],
+];
+---
+<nav class="agro-nav" aria-label="Navegação principal">
+  {links.map(([url, label]) => <a href={url}>{label}</a>)}
+  <a class="agro-nav-action" href={href}>{cta} <span aria-hidden="true">↗</span></a>
+</nav>
+<details class="agro-menu">
+  <summary>Menu</summary>
+  <nav aria-label="Navegação mobile">
+    {links.map(([url, label]) => <a href={url}>{label}</a>)}
+    <a href={href}>{cta}</a>
+  </nav>
+</details>
+<script>
+  for (const menu of document.querySelectorAll('details.agro-menu')) {
+    menu.addEventListener('click', (event) => {
+      if (event.target instanceof Element && event.target.closest('a')) menu.open = false;
+    });
+    menu.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && menu.open) {
+        menu.open = false;
+        menu.querySelector('summary')?.focus();
+      }
+    });
+  }
+</script>

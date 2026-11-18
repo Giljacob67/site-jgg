@@ -1,0 +1,23 @@
+---
+import Base from '../../layouts/Base.astro';
+import ToolPage from '../../components/ToolPage.astro';
+
+const title = 'Checklist de crédito rural';
+const intro = 'Marque o que você já reuniu para consultar sobre a operação.';
+const items = [
+  'Contrato e aditivos',
+  'Demonstrativos de saldo',
+  'Extratos',
+  'Comprovantes da atividade rural',
+  'Comunicações com a instituição financeira',
+  'Documentos de garantias e vencimentos',
+];
+---
+<Base title={`${title} | JGG Group`} description={intro} path="/ferramentas/checklist-credito-rural">
+  <ToolPage {title} {intro} disclaimer="Checklist informativo. Os documentos necessários variam conforme a operação.">
+    <fieldset class="agro-checklist">
+      <legend>Documentos da operação</legend>
+      {items.map((item) => <label><input type="checkbox" /> {item}</label>)}
+    </fieldset>
+  </ToolPage>
+</Base>

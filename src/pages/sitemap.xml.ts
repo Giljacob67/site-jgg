@@ -5,10 +5,12 @@ const pages: [string, string, string, string][] = [
   ['', built, 'monthly', '1'],
   ['/diagnostico', built, 'monthly', '0.7'],
   ['/radar', built, 'daily', '0.7'],
+  ['/jurisprudencia', built, 'monthly', '0.7'],
   ['/ferramentas', built, 'monthly', '0.7'],
   ['/ferramentas/pequena-propriedade', built, 'monthly', '0.7'],
   ['/ferramentas/arrendamento', built, 'monthly', '0.7'],
   ['/ferramentas/credito-rural', built, 'monthly', '0.7'],
+  ['/ferramentas/checklist-credito-rural', built, 'monthly', '0.7'],
   ['/privacidade', built, 'monthly', '0.7'],
   ...radar.map((r): [string, string, string, string] => [`/radar/${r.slug}`, `${r.dateIso}T00:00:00.000Z`, 'weekly', '0.8']),
 ];

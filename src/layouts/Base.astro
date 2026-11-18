@@ -6,6 +6,7 @@ import '@fontsource/instrument-serif/latin-400.css';
 import '@fontsource/instrument-serif/latin-400-italic.css';
 import '../styles/original.css';
 import '../styles/additions.css';
+import '../styles/agro-premium.css';
 import serif from '@fontsource/instrument-serif/files/instrument-serif-latin-400-normal.woff2?url';
 import serifItalic from '@fontsource/instrument-serif/files/instrument-serif-latin-400-italic.woff2?url';
 import sans from '@fontsource/dm-sans/files/dm-sans-latin-400-normal.woff2?url';
@@ -68,7 +69,7 @@ const legalService = {
     <meta name="twitter:title" content="JGG Group — Agro Radar" />
     <meta name="twitter:description" content="Inteligência jurídica para decisões no campo." />
     <meta name="twitter:image" content={`${SITE}/og.png`} />
-    <meta name="theme-color" content="#082c25" />
+    <meta name="theme-color" content="#17382c" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap.xml" />
     {[serif, serifItalic, sans].map((href) => <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />)}
@@ -77,6 +78,7 @@ const legalService = {
     {jsonLd.map((d) => <script type="application/ld+json" set:html={JSON.stringify(d)} />)}
   </head>
   <body>
+    {import.meta.env.MODE === 'preview' && <p class="agro-preview">Prévia da JGG · Use apenas dados fictícios nos formulários.</p>}
     <slot />
   </body>
 </html>

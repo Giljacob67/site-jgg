@@ -1,0 +1,55 @@
+<form class="agro-contact-form" data-contact action="/api/leads" method="post">
+  <h3>Fale com nossa equipe</h3>
+  <fieldset disabled>
+    <legend class="agro-sr-only">Dados para contato</legend>
+    <label>Nome <input name="name" autocomplete="name" required maxlength="120" /></label>
+    <div class="agro-contact-fields">
+      <label>E-mail <input name="email" type="email" autocomplete="email" required maxlength="160" /></label>
+      <label>WhatsApp <input name="phone" type="tel" autocomplete="tel" required maxlength="40" /></label>
+    </div>
+    <label>Assunto <input name="matter" required maxlength="120" /></label>
+    <label>Como podemos ajudar? <textarea name="summary" rows="4" required maxlength="2000"></textarea></label>
+    <div class="lead-honeypot" aria-hidden="true"><label>Site <input name="website" tabindex="-1" autocomplete="off" /></label></div>
+    <div class="agro-consent">
+      <label><input name="consent" type="checkbox" value="true" required /> Autorizo o uso dos dados para retorno sobre esta mensagem.</label>
+      <a href="/privacidade">Política de Privacidade</a>
+    </div>
+    <button class="agro-button" type="submit">Enviar mensagem <span aria-hidden="true">↗</span></button>
+  </fieldset>
+  <p role="status" data-contact-status></p>
+  <noscript><p>Para enviar seus dados, ative o JavaScript ou use o e-mail ou o WhatsApp.</p></noscript>
+</form>
+<script>
+  const form = document.querySelector('form[data-contact]');
+  const fields = form?.querySelector('fieldset');
+  const status = form?.querySelector('[data-contact-status]');
+  if (form instanceof HTMLFormElement && fields && status) {
+    fields.disabled = false;
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const values = new FormData(form);
+      fields.disabled = true;
+      status.textContent = 'Enviando…';
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ ...Object.fromEntries(values), consent: values.get('consent') === 'true' }),
+        });
+        if (!response.ok) {
+          const result: unknown = await response.json();
+          status.textContent = result && typeof result === 'object' && 'error' in result && typeof result.error === 'string'
+            ? result.error
+            : 'Não foi possível enviar. Tente novamente.';
+          return;
+        }
+        form.reset();
+        status.textContent = 'Mensagem enviada.';
+      } catch {
+        status.textContent = 'Não foi possível enviar. Tente novamente ou use o WhatsApp da JGG.';
+      } finally {
+        fields.disabled = false;
+      }
+    });
+  }
+</script>

@@ -1,8 +1,7 @@
 ---
 import { fallbackQuotes, pct } from '../data/market';
-const doubled = [...fallbackQuotes, ...fallbackQuotes];
 ---
-<section class="market-bar" aria-label="Indicadores do mercado agropecuário"><div class="market-label"><span class="market-live-dot"></span><div><b>Mercado Agro</b><small data-market-status>Últimos indicadores</small></div></div><div class="market-viewport"><div class="market-track" data-market-track>{doubled.map((q, i) => <div class="market-quote" aria-hidden={i >= fallbackQuotes.length ? 'true' : undefined}><span>{q.label} <i>{q.region}</i></span><strong>{q.value} <small>{q.unit}</small></strong>{q.variation !== null && <b class={q.variation >= 0 ? 'up' : 'down'}>{q.variation >= 0 ? '▲' : '▼'} {pct(q.variation)}%</b>}<em>{q.source} · {q.asOf}</em></div>)}</div></div><a href="/radar" class="market-info">Fontes e contexto →</a></section>
+<section class="market-bar" aria-label="Indicadores do mercado agropecuário"><div class="market-label"><span class="market-live-dot"></span><div><b>Mercado Agro</b><small data-market-status>Últimos indicadores</small></div></div><div class="market-viewport" tabindex="0" aria-label="Cotações disponíveis na horizontal"><div class="market-track" data-market-track>{fallbackQuotes.map((q) => <div class="market-quote"><span>{q.label} <i>{q.region}</i></span><strong>{q.value} <small>{q.unit}</small></strong>{q.variation !== null && <b class={q.variation >= 0 ? 'up' : 'down'}>{q.variation >= 0 ? '▲' : '▼'} {pct(q.variation)}%</b>}<em>{q.source} · {q.asOf}</em></div>)}</div></div><a href="/radar" class="market-info">Fontes e contexto →</a></section>
 <script>
   import { pct, type Quote } from '../data/market';
   const track = document.querySelector<HTMLElement>('[data-market-track]');
@@ -12,9 +11,8 @@ const doubled = [...fallbackQuotes, ...fallbackQuotes];
     .then((r) => r.json())
     .then((d: { quotes?: Quote[] }) => {
       if (!track || !d.quotes?.length) return;
-      const n = d.quotes.length;
-      track.innerHTML = [...d.quotes, ...d.quotes]
-        .map((q, i) => `<div class="market-quote"${i >= n ? ' aria-hidden="true"' : ''}><span>${esc(q.label)} <i>${esc(q.region)}</i></span><strong>${esc(q.value)} <small>${esc(q.unit)}</small></strong>${q.variation === null ? '' : `<b class="${q.variation >= 0 ? 'up' : 'down'}">${q.variation >= 0 ? '▲' : '▼'} ${pct(q.variation)}%</b>`}<em>${esc(q.source)} · ${esc(q.asOf)}</em></div>`)
+      track.innerHTML = d.quotes
+        .map((q) => `<div class="market-quote"><span>${esc(q.label)} <i>${esc(q.region)}</i></span><strong>${esc(q.value)} <small>${esc(q.unit)}</small></strong>${q.variation === null ? '' : `<b class="${q.variation >= 0 ? 'up' : 'down'}">${q.variation >= 0 ? '▲' : '▼'} ${pct(q.variation)}%</b>`}<em>${esc(q.source)} · ${esc(q.asOf)}</em></div>`)
         .join('');
       if (status) status.textContent = 'Indicadores atualizados';
     })
