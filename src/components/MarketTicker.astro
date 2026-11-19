@@ -65,11 +65,16 @@ import { fallbackQuotes, pct } from '../data/market';
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     const hover = matchMedia('(hover: hover)');
     let playing = !reducedMotion.matches;
-    let duplicate: HTMLElement | undefined;
+    const copies: HTMLElement[] = [];
     let frame = 0;
     let lastTime = 0;
     let position = 0;
     let quoteWidth = 0;
+
+    function clearCopies() {
+      for (const copy of copies) copy.remove();
+      copies.length = 0;
+    }
 
     function advance(time: number) {
       if (lastTime) position = (position + Math.min(time - lastTime, 50) * 0.036) % quoteWidth;
@@ -81,21 +86,25 @@ import { fallbackQuotes, pct } from '../data/market';
     function updateMotion() {
       cancelAnimationFrame(frame);
       quoteWidth = quotes.offsetWidth;
-      const overflows = quoteWidth > viewport.clientWidth;
-      control.hidden = !overflows;
+      const visible = quoteWidth > 0 && viewport.clientWidth > 0;
+      control.hidden = !visible;
       control.textContent = playing ? 'Pausar' : 'Mover';
       control.setAttribute('aria-label', playing ? 'Pausar cotações' : 'Mover cotações');
-      if (!playing || !overflows) {
-        duplicate?.remove();
-        duplicate = undefined;
+      if (!playing || !visible) {
+        clearCopies();
         return;
       }
 
-      if (!duplicate) {
-        duplicate = quotes.cloneNode(true) as HTMLElement;
-        duplicate.removeAttribute('data-market-quotes');
-        duplicate.setAttribute('aria-hidden', 'true');
-        quotes.after(duplicate);
+      const copiesNeeded = Math.ceil(viewport.clientWidth / quoteWidth);
+      if (copies.length !== copiesNeeded) {
+        clearCopies();
+        for (let i = 0; i < copiesNeeded; i++) {
+          const copy = quotes.cloneNode(true) as HTMLElement;
+          copy.removeAttribute('data-market-quotes');
+          copy.setAttribute('aria-hidden', 'true');
+          copies.push(copy);
+        }
+        quotes.after(...copies);
       }
       if (hover.matches && viewport.matches(':hover')) return;
       lastTime = 0;
@@ -124,13 +133,12 @@ import { fallbackQuotes, pct } from '../data/market';
     size.observe(viewport);
     size.observe(quotes);
 
-    fetch('/api/market')
+    fetch('/api/market?v=2', { cache: 'no-cache' })
       .then((response) => response.json())
       .then((data: { quotes?: Quote[] }) => {
         if (!data.quotes?.length) return;
         quotes.replaceChildren(...data.quotes.map(renderQuote));
-        duplicate?.remove();
-        duplicate = undefined;
+        clearCopies();
         updateMotion();
       })
       .catch(() => undefined);
