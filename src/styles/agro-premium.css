@@ -179,3 +179,20 @@
 .agro-home :is(.market-quote > span, .market-quote strong > small, .market-quote > em) { font-size: .625rem; }
 .agro-home :is(.market-quote > span > i, .market-quote > em, .market-quote strong > small) { opacity: 1; color: #3d5546; }
 .agro-home .market-viewport:focus-visible { outline: 2px solid #79551f; outline-offset: -2px; }
+.market-quotes { display: flex; flex: none; }
+.market-motion {
+  align-self: center;
+  border: 1px solid #806636;
+  border-radius: 4px;
+  min-height: 28px;
+  padding: 0 6px;
+  background: transparent;
+  color: inherit;
+  font: 600 .625rem 'DM Sans', sans-serif;
+  cursor: pointer;
+}
+.market-motion:focus-visible { outline: 2px solid #79551f; outline-offset: 2px; }
+@media (max-width: 480px) {
+  .agro-home .market-label { gap: 6px; padding-inline: 8px; }
+  .agro-home .market-live-dot { display: none; }
+}

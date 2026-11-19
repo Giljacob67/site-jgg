@@ -1,7 +1,9 @@
 // Worker do site JGG Group: serve os arquivos estáticos (dist/) e duas APIs.
-//   GET  /api/market  → cotações CEPEA + PTAX (cache de 30 min)
+//   GET  /api/market  → cotações CEPEA, Deral e PTAX (cache de 30 min)
 //   POST /api/leads   → envia o contato da triagem por e-mail (Resend) e, se configurado, a um webhook
 // Nenhum dado pessoal é gravado aqui.
+
+import type { Quote } from './data/market';
 
 interface Env {
   ASSETS: Fetcher;
@@ -72,8 +74,6 @@ export default {
 
 /* ---------------- /api/market ---------------- */
 
-type Quote = { key: string; label: string; region: string; value: string; unit: string; variation: number | null; source: string; asOf: string };
-
 const CEPEA = [
   { key: 'soja', label: 'Soja', region: 'PR', unit: '/ sc 60 kg', page: 'soja', table: 'PARANÁ' },
   { key: 'milho', label: 'Milho', region: 'Indicador', unit: '/ sc 60 kg', page: 'milho', table: 'MILHO' },
@@ -83,6 +83,13 @@ const CEPEA = [
 
 const timeout = (ms: number) => AbortSignal.timeout(ms);
 const brNum = (s: string) => Number(s.replace(/\./g, '').replace(',', '.'));
+const deralProducts = new Map([
+  ['Arroz Agulhinha em casca tipo 1 sc 60 Kg', { key: 'arroz', label: 'Arroz em casca' }],
+  ['Feijão Carioca tipo 1 sc 60 Kg', { key: 'feijao-carioca', label: 'Feijão carioca' }],
+  ['Feijão preto tipo 1 sc 60 Kg', { key: 'feijao-preto', label: 'Feijão preto' }],
+  ['Trigo pão PH 78 sc 60 Kg', { key: 'trigo', label: 'Trigo pão' }],
+]);
+const quotePrice = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
 /** Lê a primeira linha (data, valor, variação diária) da tabela do indicador na página do CEPEA. */
 async function cepea(def: (typeof CEPEA)[number]): Promise<Quote | null> {
@@ -128,13 +135,48 @@ async function ptax(): Promise<Quote | null> {
   }
 }
 
+async function deral(): Promise<Quote[]> {
+  try {
+    const response = await fetch('https://celepar7.pr.gov.br/sima/cotdiat.asp', { signal: timeout(6000) });
+    if (!response.ok) return [];
+    const html = new TextDecoder('windows-1252').decode(await response.arrayBuffer());
+    const asOf = html.match(/atacadista no dia(?:&nbsp;|\s)+(\d{2}\/\d{2}\/\d{4})/i)?.[1];
+    if (!asOf) return [];
+
+    const quotes: Quote[] = [];
+    let product: { key: string; label: string } | undefined;
+    for (const [row] of html.matchAll(/<tr\b[^>]*>[\s\S]*?<\/tr>/gi)) {
+      const cells = Array.from(row.matchAll(/<td\b[^>]*>([\s\S]*?)<\/td>/gi), ([, cell]) =>
+        cell.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim(),
+      );
+      if (cells[0] !== 'm_c') {
+        product = cells[1] === 'min' ? deralProducts.get(cells[0]) : undefined;
+        continue;
+      }
+      if (!product) continue;
+      // As três colunas finais são média estadual do dia, média anterior e variação.
+      const [current, previous, change] = cells.slice(-3).map((cell) => cell ? Number(cell) : NaN);
+      if (Number.isFinite(current) && current > 0) {
+        quotes.push({
+          ...product, region: 'PR · atacado', value: quotePrice.format(current), unit: '/ sc 60 kg',
+          variation: previous > 0 && Number.isFinite(change) ? change : null, source: 'Deral', asOf,
+        });
+      }
+      product = undefined;
+    }
+    return quotes;
+  } catch {
+    return [];
+  }
+}
+
 async function market(request: Request, ctx: ExecutionContext) {
   const cache = caches.default;
-  const key = new Request(new URL('/api/market', request.url).toString());
+  const key = new Request(new URL('/api/market?v=2', request.url).toString());
   const hit = await cache.match(key);
   if (hit) return hit;
-  const [cepeaQuotes, dollar] = await Promise.all([Promise.all(CEPEA.map(cepea)), ptax()]);
-  const quotes = [...cepeaQuotes.filter((q): q is Quote => q !== null), ...(dollar ? [dollar] : [])];
+  const [cepeaQuotes, dollar, deralQuotes] = await Promise.all([Promise.all(CEPEA.map(cepea)), ptax(), deral()]);
+  const quotes = [...cepeaQuotes.filter((q): q is Quote => q !== null), ...deralQuotes, ...(dollar ? [dollar] : [])];
   const res = Response.json(
     { quotes, updatedAt: new Date().toISOString() },
     { headers: { 'cache-control': quotes.length ? 'public, max-age=900, s-maxage=1800' : 'no-store' } },

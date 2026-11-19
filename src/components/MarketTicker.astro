@@ -1,20 +1,138 @@
 ---
 import { fallbackQuotes, pct } from '../data/market';
 ---
-<section class="market-bar" aria-label="Indicadores do mercado agropecuário"><div class="market-label"><span class="market-live-dot"></span><div><b>Mercado Agro</b><small data-market-status>Últimos indicadores</small></div></div><div class="market-viewport" tabindex="0" aria-label="Cotações disponíveis na horizontal"><div class="market-track" data-market-track>{fallbackQuotes.map((q) => <div class="market-quote"><span>{q.label} <i>{q.region}</i></span><strong>{q.value} <small>{q.unit}</small></strong>{q.variation !== null && <b class={q.variation >= 0 ? 'up' : 'down'}>{q.variation >= 0 ? '▲' : '▼'} {pct(q.variation)}%</b>}<em>{q.source} · {q.asOf}</em></div>)}</div></div><a href="/radar" class="market-info">Fontes e contexto →</a></section>
+<section class="market-bar" aria-label="Indicadores do mercado agropecuário">
+  <div class="market-label">
+    <span class="market-live-dot"></span>
+    <div><b>Mercado Agro</b><small>Últimos indicadores</small></div>
+    <button type="button" class="market-motion" aria-controls="market-quotes" data-market-motion hidden>Pausar</button>
+  </div>
+  <div class="market-viewport" id="market-quotes" tabindex="0" aria-label="Cotações em rolagem horizontal" data-market-viewport>
+    <div class="market-track">
+      <div class="market-quotes" data-market-quotes>
+        {fallbackQuotes.map((q) => (
+          <div class="market-quote">
+            <span>{q.label} <i>{q.region}</i></span>
+            <strong>{q.value} <small>{q.unit}</small></strong>
+            {q.variation !== null && <b class={q.variation >= 0 ? 'up' : 'down'}>{q.variation >= 0 ? '▲' : '▼'} {pct(q.variation)}%</b>}
+            <em>{q.source} · {q.asOf}</em>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+  <a href="/radar" class="market-info">Fontes e contexto →</a>
+</section>
 <script>
   import { pct, type Quote } from '../data/market';
-  const track = document.querySelector<HTMLElement>('[data-market-track]');
-  const status = document.querySelector<HTMLElement>('[data-market-status]');
-  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
-  fetch('/api/market')
-    .then((r) => r.json())
-    .then((d: { quotes?: Quote[] }) => {
-      if (!track || !d.quotes?.length) return;
-      track.innerHTML = d.quotes
-        .map((q) => `<div class="market-quote"><span>${esc(q.label)} <i>${esc(q.region)}</i></span><strong>${esc(q.value)} <small>${esc(q.unit)}</small></strong>${q.variation === null ? '' : `<b class="${q.variation >= 0 ? 'up' : 'down'}">${q.variation >= 0 ? '▲' : '▼'} ${pct(q.variation)}%</b>`}<em>${esc(q.source)} · ${esc(q.asOf)}</em></div>`)
-        .join('');
-      if (status) status.textContent = 'Indicadores atualizados';
-    })
-    .catch(() => undefined);
+
+  const viewport = document.querySelector<HTMLElement>('[data-market-viewport]');
+  const quotes = viewport?.querySelector<HTMLElement>('[data-market-quotes]');
+  const control = document.querySelector<HTMLButtonElement>('[data-market-motion]');
+
+  if (viewport && quotes && control) setupTicker(viewport, quotes, control);
+
+  function renderQuote(quote: Quote) {
+    const card = document.createElement('div');
+    card.className = 'market-quote';
+
+    const title = document.createElement('span');
+    const region = document.createElement('i');
+    region.textContent = quote.region;
+    title.append(quote.label, ' ', region);
+
+    const price = document.createElement('strong');
+    const unit = document.createElement('small');
+    unit.textContent = quote.unit;
+    price.append(quote.value, ' ', unit);
+
+    const source = document.createElement('em');
+    source.textContent = quote.source + ' · ' + quote.asOf;
+
+    card.append(title, price);
+    if (quote.variation !== null) {
+      const change = document.createElement('b');
+      const rising = quote.variation >= 0;
+      change.className = rising ? 'up' : 'down';
+      change.textContent = (rising ? '▲ ' : '▼ ') + pct(quote.variation) + '%';
+      card.append(change);
+    }
+    card.append(source);
+    return card;
+  }
+
+  function setupTicker(viewport: HTMLElement, quotes: HTMLElement, control: HTMLButtonElement) {
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    const hover = matchMedia('(hover: hover)');
+    let playing = !reducedMotion.matches;
+    let duplicate: HTMLElement | undefined;
+    let frame = 0;
+    let lastTime = 0;
+    let position = 0;
+    let quoteWidth = 0;
+
+    function advance(time: number) {
+      if (lastTime) position = (position + Math.min(time - lastTime, 50) * 0.036) % quoteWidth;
+      viewport.scrollLeft = position;
+      lastTime = time;
+      frame = requestAnimationFrame(advance);
+    }
+
+    function updateMotion() {
+      cancelAnimationFrame(frame);
+      quoteWidth = quotes.offsetWidth;
+      const overflows = quoteWidth > viewport.clientWidth;
+      control.hidden = !overflows;
+      control.textContent = playing ? 'Pausar' : 'Mover';
+      control.setAttribute('aria-label', playing ? 'Pausar cotações' : 'Mover cotações');
+      if (!playing || !overflows) {
+        duplicate?.remove();
+        duplicate = undefined;
+        return;
+      }
+
+      if (!duplicate) {
+        duplicate = quotes.cloneNode(true) as HTMLElement;
+        duplicate.removeAttribute('data-market-quotes');
+        duplicate.setAttribute('aria-hidden', 'true');
+        quotes.after(duplicate);
+      }
+      if (hover.matches && viewport.matches(':hover')) return;
+      lastTime = 0;
+      position = viewport.scrollLeft % quoteWidth;
+      frame = requestAnimationFrame(advance);
+    }
+
+    function pause() {
+      playing = false;
+      updateMotion();
+    }
+
+    control.addEventListener('click', () => { playing = !playing; updateMotion(); });
+    reducedMotion.addEventListener('change', (event) => { if (event.matches) pause(); });
+    viewport.addEventListener('focusin', pause);
+    viewport.addEventListener('pointerdown', pause);
+    viewport.addEventListener('pointerenter', updateMotion);
+    viewport.addEventListener('pointerleave', updateMotion);
+    viewport.addEventListener('wheel', (event) => { if (event.deltaX || event.shiftKey) pause(); }, { passive: true });
+
+    let resizeFrame = 0;
+    const size = new ResizeObserver(() => {
+      cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(updateMotion);
+    });
+    size.observe(viewport);
+    size.observe(quotes);
+
+    fetch('/api/market')
+      .then((response) => response.json())
+      .then((data: { quotes?: Quote[] }) => {
+        if (!data.quotes?.length) return;
+        quotes.replaceChildren(...data.quotes.map(renderQuote));
+        duplicate?.remove();
+        duplicate = undefined;
+        updateMotion();
+      })
+      .catch(() => undefined);
+  }
 </script>
