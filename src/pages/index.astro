@@ -8,7 +8,14 @@ import { authorPath, gilbertoJacob } from '../data/authors';
 import { cases } from '../data/jurisprudencia';
 import { currentAlert as alert } from '../data/agro-alerta';
 import { officePhones } from '../data/office-phones';
+import { officeAddress } from '../data/office-address';
 
+const { streetAddress, addressLocality, addressRegion, postalCode, addressCountry } = officeAddress;
+const mapsUrl = new URL('https://www.google.com/maps/search/');
+mapsUrl.search = new URLSearchParams({
+  api: '1',
+  query: `${streetAddress}, ${addressLocality} - ${addressRegion}, ${postalCode}, ${addressCountry}`,
+}).toString();
 const radar = await getRadar({ includePreview: import.meta.env.MODE === 'preview' });
 const alertEditorial = radar.find(({ slug }) => slug === alert.editorialSlug);
 const featured = getRadarFeatured(radar);
@@ -270,7 +277,11 @@ const tools = [
           <dl class="agro-contact-details">
             <div>
               <dt>Escritório</dt>
-              <dd>Av. Euclides da Cunha, 526<br />Maringá — PR</dd>
+              <dd>
+                <a href={mapsUrl.href} aria-label={`${streetAddress}, ${addressLocality} — ${addressRegion}, CEP ${postalCode}. Ver no Google Maps`}>
+                  <span>{streetAddress}<br />{addressLocality} — {addressRegion}<br />CEP {postalCode} <span aria-hidden="true">↗</span></span>
+                </a>
+              </dd>
             </div>
             <div>
               <dt>Atuação</dt>

@@ -13,6 +13,7 @@ import serifItalic from '@fontsource/instrument-serif/files/instrument-serif-lat
 import archivo from '@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2?url';
 import sans from '@fontsource/dm-sans/files/dm-sans-latin-400-normal.woff2?url';
 import { officePhones } from '../data/office-phones';
+import { officeAddress } from '../data/office-address';
 
 export const SITE = 'https://jgggroup.com.br';
 export const PREVIEW = import.meta.env.PUBLIC_PREVIEW_ORIGIN ?? 'https://site-jgg-agro-premium.jgggroup.workers.dev';
@@ -45,10 +46,7 @@ const legalService = {
   areaServed: ['Paraná', 'Mato Grosso'],
   address: {
     '@type': 'PostalAddress',
-    streetAddress: 'Av. Euclides da Cunha, 526',
-    addressLocality: 'Maringá',
-    addressRegion: 'PR',
-    addressCountry: 'BR',
+    ...officeAddress,
   },
 };
 ---
