@@ -2,8 +2,8 @@
 title: "Impenhorabilidade da pequena propriedade rural: o que o STF (Tema 961) e o STJ (Tema 1234) exigem comprovar"
 summary: "Não basta que o imóvel rural esteja enquadrado pelo tamanho em módulos fiscais. Para valer a proteção contra penhora do art. 833, VIII, do CPC, quem alega a impenhorabilidade precisa comprovar também a exploração econômica pela família — e a discussão ganha nuances próprias quando há hipoteca ou alienação fiduciária."
 category: Terra
-dateIso: "2026-11-23"
-status: draft
+dateIso: "2026-11-19"
+status: approved
 tool: pequena-propriedade
 sources:
   - label: "Constituição Federal, art. 5º, inciso XXVI"
