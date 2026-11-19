@@ -9,7 +9,7 @@ const disclaimer = 'Resultado informativo baseado nos dados fornecidos. O cálcu
 const states = 'AC AL AM AP BA CE DF ES GO MA MG MS MT PA PB PE PI PR RJ RN RO RR RS SC SE SP TO'.split(' ');
 ---
 <Base terraRoxa title="Verificador de pequena propriedade rural | JGG Group" description="Calcule os módulos fiscais pelo município e organize os documentos pertinentes à pequena propriedade rural." path={path}>
-<ToolPage title={title} intro="Escolha o município e informe a área. Você verá a dimensão em módulos fiscais e quais informações ajudam a entender a situação." disclaimer={disclaimer}>
+<ToolPage title={title} intro="Escolha o município e informe a área. Você verá a dimensão em módulos fiscais e quais informações ajudam a entender a situação." disclaimer={disclaimer} related={{ href: '/jurisprudencia#pequena-propriedade', label: 'Consultar a decisão do STJ sobre a garantia da pequena propriedade' }}>
 <div class="calculator-grid">
   <label>UF do imóvel<select name="uf"><option value="">Selecione</option>{states.map((state) => <option>{state}</option>)}</select></label>
   <label>Município<select name="municipio" disabled><option value="">Selecione a UF</option></select></label>

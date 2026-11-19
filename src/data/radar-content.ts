@@ -30,3 +30,13 @@ export async function getRadar({ includePreview = false } = {}) {
     ...markdown.filter((item) => includePreview || item.published),
   ].sort((a, b) => b.dateIso.localeCompare(a.dateIso) || a.slug.localeCompare(b.slug));
 }
+
+export function getRadarFeatured(items: Awaited<ReturnType<typeof getRadar>>) {
+  const today = publicationDate.format(new Date());
+  const scheduled = items.flatMap((item) => {
+    if (item.kind !== 'markdown' || !item.featuredFrom || item.featuredFrom > today || item.dateIso > today) return [];
+    return [{ item, from: item.featuredFrom }];
+  });
+  scheduled.sort((a, b) => b.from.localeCompare(a.from));
+  return scheduled[0]?.item ?? items.find(({ published }) => published);
+}

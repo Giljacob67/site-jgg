@@ -14,7 +14,7 @@ const items = [
 ];
 ---
 <Base title={`${title} | JGG Group`} description={intro} path="/ferramentas/checklist-credito-rural">
-  <ToolPage {title} {intro} disclaimer="Checklist informativo. Os documentos necessários variam conforme a operação.">
+  <ToolPage {title} {intro} disclaimer="Checklist informativo. Os documentos necessários variam conforme a operação." related={{ href: '/guias/credito-rural-e-garantias', label: 'Consultar o guia de crédito rural por situação' }}>
     <fieldset class="agro-checklist">
       <legend>Documentos da operação</legend>
       {items.map((item) => <label><input type="checkbox" /> {item}</label>)}

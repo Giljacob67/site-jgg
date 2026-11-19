@@ -2,38 +2,371 @@
 import Base from '../layouts/Base.astro';
 import SubHeader from '../components/SubHeader.astro';
 import { radarCategories } from '../data/radar';
-import { getRadar } from '../data/radar-content';
+import { getRadar, getRadarFeatured } from '../data/radar-content';
+import { insightsWords } from '../scripts/insights-search';
 
 const radar = await getRadar({ includePreview: import.meta.env.MODE === 'preview' });
+const featured = getRadarFeatured(radar);
+const recent = radar.filter((item) =>
+  item.published && item !== featured && (item.kind === 'markdown' || item.source.startsWith('Análise JGG')),
+).slice(0, 2);
+const monthLabel = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+const months = [...new Set(radar.map(({ dateIso }) => dateIso.slice(0, 7)))];
+const topics = radarCategories.filter((topic) => radar.some(({ category }) => category === topic));
 const digest = import.meta.env.PUBLIC_AGRO_DIGEST_URL?.trim();
 const digestChannel = digest && /^https:\/\/www\.whatsapp\.com\/channel\/[A-Za-z0-9]+\/?$/.test(digest) ? digest : undefined;
-const filters = ['Todos', ...radarCategories];
+const featuredPhoto = featured?.kind === 'markdown' && featured.image;
+const relatedSearch = [
+  {
+    title: 'Quebra de safra, prorrogação e pedido ao banco',
+    href: '/guias/credito-rural-e-garantias#quebra-de-safra',
+    terms: 'alongamento solicitação protocolo pedido o banco não respondeu resposta vencimento perdeu safra perdas quebra crédito rural',
+  },
+  {
+    title: 'O que conferir ao receber um pedido de novas garantias',
+    href: '/guias/credito-rural-e-garantias#garantias',
+    terms: 'CPR CCB cédula garantias banco imóvel hipoteca alienação fiduciária matrícula',
+  },
+];
+
+const archive = radar.map((item) => {
+  const headings = item.kind === 'legacy' ? item.sections.map(({ heading }) => heading)
+    : [...(item.entry.body ?? '').matchAll(/^#{1,6}\s+(.+)$/gm)].map((match) => match[1]);
+  const words = insightsWords([item.title, item.summary, item.category, item.level, ...headings].join(' '));
+  return { item, words: [...new Set(words)].join(' ') };
+});
 ---
-<Base title="JGG Agro Radar | JGG Group" description="Notícias, decisões e normas do agronegócio selecionadas em fontes oficiais e revisadas pela equipe jurídica." path="/radar">
-<main class="subpage">
-<SubHeader cta="Iniciar triagem" href="/diagnostico" />
-<section class="subpage-hero"><div class="shell"><p class="eyebrow light">JGG Agro Radar</p><h1>O que muda no campo,<br />traduzido para decisão.</h1><p>Notícias, decisões e normas selecionadas em fontes oficiais e revisadas antes da publicação.</p></div></section>
-<section class="section shell"><div class="live-status"><i></i> Curadoria jurídica com fontes oficiais</div><div class="filters" role="group" aria-label="Filtrar por tema">{filters.map((c, i) => <button type="button" class={`filter-button ${i === 0 ? 'active' : ''}`} aria-pressed={i === 0 ? 'true' : 'false'} data-filter={c}>{c}</button>)}</div><div class="radar-page-grid"><div class="feed" aria-live="polite">{radar.map((item) => <article class="feed-card" data-category={item.category}><div class="date-block"><span class="tag">{item.category}</span><p>{item.date}</p><small>{item.published ? item.level : "Prévia editorial"}</small></div><div><h2><a href={`/radar/${item.slug}`}>{item.title}</a></h2><p>{item.summary}</p><span class="source-line">{item.source} · Conteúdo informativo</span><a href={`/radar/${item.slug}`} class="feed-read">Ler análise completa →</a></div></article>)}</div><aside class="radar-aside">
-  {digestChannel ? <>
-    <p class="eyebrow light">JGG Agro Digest</p><h3>Acompanhe as novidades</h3>
-    <p>Siga o canal para receber as publicações do Agro Radar.</p>
-    <a class="button copper" href={digestChannel}>Acompanhar o JGG Agro Digest</a>
-  </> : <>
-    <p class="eyebrow light">JGG Agro Alerta</p><h3>Acompanhe a tramitação</h3>
-    <p>Veja o estágio da matéria em destaque e consulte as fontes oficiais.</p>
-    <a class="button copper" href="/agro-alerta">Ver o Agro Alerta</a>
-  </>}
-</aside></div></section>
-</main>
+
+<Base
+  title="JGG Insights | Direito Agrário e Crédito Rural"
+  description="Análises jurídicas, decisões e notícias comentadas pela JGG. Pesquise o acervo de Direito Agrário e Crédito Rural por assunto e data."
+  path="/radar"
+  terraRoxa
+>
+  <main class="subpage">
+    <SubHeader cta="Iniciar triagem" href="/diagnostico" />
+    <div class="agro-wrap insights">
+      <header class="insights-heading">
+        <h1>JGG Insights</h1>
+        <p>Direito Agrário e Crédito Rural</p>
+        <a class="agro-text-link" href="#arquivo">Consultar o arquivo <span aria-hidden="true">↓</span></a>
+      </header>
+
+      <div class="insights-edition">
+        {featured && (
+          <section aria-labelledby="insights-featured">
+            <h2 id="insights-featured" class="insights-label">Destaque da semana</h2>
+            <article class="insights-feature">
+              {featuredPhoto ? (
+                <img src={featuredPhoto} alt="" width="1200" height="630" decoding="async" />
+              ) : (
+                <img
+                  src="/hero-amanhecer-jgg-1024.webp"
+                  srcset="/hero-amanhecer-jgg-640.webp 640w, /hero-amanhecer-jgg-1024.webp 1024w"
+                  sizes="(max-width: 760px) calc(100vw - 32px), 62vw"
+                  alt=""
+                  width="1672"
+                  height="941"
+                  decoding="async"
+                />
+              )}
+              <div class="insights-feature-copy">
+                <p class="insights-meta">{featured.category} · {featured.published ? featured.level : 'Prévia editorial'}</p>
+                <h3><a href={'/radar/' + featured.slug}>{featured.title}</a></h3>
+                <p>{featured.summary}</p>
+                <p class="insights-date"><time datetime={featured.dateIso}>{featured.date}</time></p>
+              </div>
+            </article>
+          </section>
+        )}
+        {recent.length > 0 && (
+          <section aria-labelledby="insights-recent">
+            <h2 id="insights-recent" class="insights-label">Últimas análises</h2>
+            {recent.map((item) => (
+              <article class="insights-brief">
+                <p class="insights-meta">{item.category}</p>
+                <h3><a href={'/radar/' + item.slug}>{item.title}</a></h3>
+                <p class="insights-date"><time datetime={item.dateIso}>{item.date}</time></p>
+              </article>
+            ))}
+          </section>
+        )}
+      </div>
+
+      <section id="arquivo" class="insights-archive" aria-labelledby="insights-archive-title">
+        <h2 id="insights-archive-title">Arquivo</h2>
+        <div class="insights-filters" hidden>
+          <label class="insights-query">Buscar no acervo
+            <input type="search" id="insights-query" placeholder="Ex.: prorrogação, CPR ou penhora" autocomplete="off" maxlength="120" />
+          </label>
+          <label>Tema
+            <select id="insights-topic" autocomplete="off">
+              <option value="">Todos os temas</option>
+              {topics.map((topic) => <option value={topic}>{topic}</option>)}
+            </select>
+          </label>
+          <label>Data
+            <select id="insights-period" autocomplete="off">
+              <option value="">Todas as datas</option>
+              {months.map((month) => <option value={month}>{monthLabel.format(new Date(month + '-01'))}</option>)}
+            </select>
+          </label>
+          <p class="insights-date" id="insights-count" role="status"></p>
+        </div>
+        <ul class="insights-list">
+          {archive.map(({ item, words }) => (
+            <li data-insights-topic={item.category} data-insights-period={item.dateIso.slice(0, 7)} data-insights-search={words}>
+              <article class="insights-entry">
+                <div>
+                  <p class="insights-meta">{item.category}{!item.published && ' · Prévia editorial'}</p>
+                  <p class="insights-date"><time datetime={item.dateIso}>{item.date}</time></p>
+                </div>
+                <div>
+                  <h3><a href={'/radar/' + item.slug}>{item.title}</a></h3>
+                  <p>{item.summary}</p>
+                </div>
+              </article>
+            </li>
+          ))}
+        </ul>
+        <aside class="insights-search-links" aria-labelledby="insights-guide-title" hidden>
+          <h3 id="insights-guide-title">Também nos guias da JGG</h3>
+          <ul>
+            {relatedSearch.map(({ title, href, terms }) => (
+              <li data-insights-guide={[...new Set(insightsWords(title + ' ' + terms))].join(' ')} hidden><a href={href}>{title} →</a></li>
+            ))}
+          </ul>
+        </aside>
+      </section>
+      <aside class="insights-related">
+        {digestChannel ? (
+          <a class="agro-text-link" href={digestChannel}>Acompanhar o JGG Agro Digest <span aria-hidden="true">↗</span></a>
+        ) : (
+          <a class="agro-text-link" href="/agro-alerta">Acompanhar o Agro Alerta <span aria-hidden="true">→</span></a>
+        )}
+      </aside>
+    </div>
+  </main>
 </Base>
+
 <script>
-  const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-filter]')];
-  const cards = [...document.querySelectorAll<HTMLElement>('.feed-card')];
-  buttons.forEach((b) =>
-    b.addEventListener('click', () => {
-      const f = b.dataset.filter;
-      buttons.forEach((x) => { x.classList.toggle('active', x === b); x.setAttribute('aria-pressed', String(x === b)); });
-      cards.forEach((c) => (c.hidden = f !== 'Todos' && c.dataset.category !== f));
-    }),
-  );
+  import { insightsWords, matchesInsightsWords } from '../scripts/insights-search';
+
+  const filters = document.querySelector<HTMLElement>('.insights-filters');
+  const query = document.querySelector<HTMLInputElement>('#insights-query');
+  const topic = document.querySelector<HTMLSelectElement>('#insights-topic');
+  const period = document.querySelector<HTMLSelectElement>('#insights-period');
+  const count = document.querySelector('#insights-count');
+  const entries = [...document.querySelectorAll<HTMLElement>('[data-insights-topic]')].map((element) => ({
+    element, words: (element.dataset.insightsSearch ?? '').split(' '),
+  }));
+  const guideResults = document.querySelector<HTMLElement>('.insights-search-links');
+  const guides = [...document.querySelectorAll<HTMLElement>('[data-insights-guide]')].map((element) => ({
+    element, words: (element.dataset.insightsGuide ?? '').split(' '),
+  }));
+
+  if (filters && query && topic && period && count && guideResults) {
+    const filterEntries = () => {
+      const terms = insightsWords(query.value);
+      let visible = 0;
+      for (const { element, words } of entries) {
+        const matchesTopic = !topic.value || element.dataset.insightsTopic === topic.value;
+        const matchesPeriod = !period.value || element.dataset.insightsPeriod === period.value;
+        element.hidden = !(matchesTopic && matchesPeriod && matchesInsightsWords(terms, words));
+        if (!element.hidden) visible++;
+      }
+      for (const { element, words } of guides) element.hidden = !terms.length || !matchesInsightsWords(terms, words);
+      guideResults.hidden = guides.every(({ element }) => element.hidden);
+      count.textContent = visible === 0 ? 'Nenhuma publicação neste recorte.'
+        : visible === 1 ? '1 publicação' : visible + ' publicações';
+    };
+    query.addEventListener('input', filterEntries);
+    topic.addEventListener('change', filterEntries);
+    period.addEventListener('change', filterEntries);
+    filterEntries();
+    filters.hidden = false;
+  }
 </script>
+
+<style>
+  .insights {
+    padding-block: clamp(2rem, 4vw, 3.5rem) clamp(2.5rem, 6vw, 5rem);
+  }
+
+  .insights-heading {
+    display: grid;
+    justify-items: start;
+    gap: .5rem;
+    border-bottom: 6px double var(--tinta);
+    padding-bottom: 1.5rem;
+  }
+
+  .insights-heading h1 {
+    font-size: clamp(3.5rem, 9vw, 6.5rem);
+    line-height: .95;
+    letter-spacing: -.035em;
+  }
+
+  .insights-heading p {
+    font-size: clamp(1.0625rem, 2.25vw, 1.4rem);
+  }
+
+  .insights-heading a {
+    margin-top: .375rem;
+  }
+
+  .insights-edition {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    margin-top: 1.5rem;
+  }
+
+  .insights-label,
+  .insights-meta {
+    color: var(--terra);
+    font-family: inherit;
+    font-size: .8125rem;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+  }
+
+  .insights-label {
+    padding-bottom: .75rem;
+  }
+
+  .insights-feature {
+    border: 1px solid var(--tinta);
+    background: var(--palha);
+  }
+
+  .insights-feature img {
+    width: 100%;
+    aspect-ratio: 2.35;
+    max-block-size: 15rem;
+    object-fit: cover;
+    object-position: right 53%;
+    border-bottom: 1px solid var(--tinta);
+  }
+
+  .insights-feature-copy {
+    padding: clamp(1rem, 3vw, 2rem);
+  }
+
+  .insights h3 {
+    font-family: var(--agro-serif);
+    font-weight: 400;
+    line-height: 1.08;
+  }
+
+  .insights-feature h3 {
+    font-size: clamp(2rem, 4.5vw, 4.25rem);
+    margin-block: .5rem .75rem;
+  }
+
+  .insights h3 a:hover {
+    color: var(--terra);
+    text-decoration: underline;
+    text-underline-offset: .14em;
+  }
+
+  .insights-brief {
+    padding-block: 1rem;
+    border-top: 1px solid var(--tinta);
+  }
+
+  .insights-brief h3,
+  .insights-entry h3 {
+    font-size: clamp(1.5rem, 2.65vw, 2.25rem);
+    margin-block: .375rem .5rem;
+  }
+
+  .insights-date {
+    color: var(--tinta);
+    font-size: .875rem;
+    margin-top: .65rem;
+  }
+
+  .insights-date time {
+    font-family: var(--mono);
+    font-size: .75rem;
+  }
+
+  .insights-archive {
+    margin-top: clamp(2.5rem, 6vw, 5rem);
+    border-top: 6px double var(--tinta);
+    padding-top: 1.5rem;
+  }
+
+  .insights-archive h2 {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    line-height: 1;
+  }
+
+  .insights-filters:not([hidden]) {
+    display: flex;
+    align-items: end;
+    flex-wrap: wrap;
+    gap: .875rem 1rem;
+    margin-block: 1rem 1.5rem;
+  }
+
+  .insights-filters label {
+    display: grid;
+    gap: .25rem;
+    font-size: .9rem;
+    font-weight: 600;
+  }
+
+  .insights-query { flex: 1 1 15rem; min-width: 0; }
+
+  .insights-filters :is(select, input) {
+    min-height: 44px;
+    border: 1px solid var(--tinta);
+    background: var(--papel);
+    color: var(--tinta);
+    padding-inline: .75rem;
+  }
+
+  .insights-query input { width: 100%; }
+
+  .insights-search-links { padding-block: 1rem 1.25rem; border-top: 1px solid var(--line); }
+  .insights-search-links h3 { font-size: 1.5rem; }
+  .insights-search-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--terra);
+    text-decoration: underline;
+    text-underline-offset: .2em;
+  }
+
+  .insights-entry {
+    display: grid;
+    grid-template-columns: minmax(0, 10rem) minmax(0, 1fr);
+    gap: .3rem 1.25rem;
+    padding-block: 1.125rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .insights-entry h3 {
+    margin-top: 0;
+  }
+
+  .insights-related {
+    border-top: 1px solid var(--line);
+    padding-block: 1.25rem;
+  }
+
+  @media (max-width: 760px) {
+    .insights-edition,
+    .insights-entry {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .insights-entry .insights-date {
+      margin-top: .25rem;
+    }
+  }
+</style>

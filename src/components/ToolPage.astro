@@ -1,6 +1,20 @@
 ---
 import SubHeader from './SubHeader.astro';
-interface Props { title: string; intro: string; disclaimer: string }
-const { title, intro, disclaimer } = Astro.props;
+interface Props { title: string; intro: string; disclaimer: string; related?: { href: string; label: string } }
+const { title, intro, disclaimer, related } = Astro.props;
 ---
-<main class="subpage"><SubHeader cta="Diagnóstico" href="/diagnostico" /><div class="tool-top shell"><a href="/ferramentas">← Todas as ferramentas</a><a href="/diagnostico">Diagnóstico JGG →</a></div><section class="calculator-page shell"><p class="eyebrow">Ferramenta informativa</p><h1>{title}</h1><p class="tools-lead">{intro}</p><div class="calculator-panel"><slot /></div><p class="calc-disclaimer">{disclaimer}</p></section></main>
+<main class="subpage">
+  <SubHeader cta="Diagnóstico" href="/diagnostico" />
+  <div class="tool-top shell"><a href="/ferramentas">← Todas as ferramentas</a><a href="/diagnostico">Diagnóstico JGG →</a></div>
+  <section class="calculator-page shell">
+    <p class="eyebrow">Ferramenta informativa</p>
+    <h1>{title}</h1>
+    <p class="tools-lead">{intro}</p>
+    <div class="calculator-panel"><slot /></div>
+    <p class="calc-disclaimer">{disclaimer}</p>
+    {related && <a class="agro-text-link tool-related" href={related.href}>{related.label} <span aria-hidden="true">→</span></a>}
+  </section>
+</main>
+<style>
+  .tool-related { margin-top: .5rem; text-align: start; }
+</style>

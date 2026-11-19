@@ -4,6 +4,7 @@ import SubHeader from '../../components/SubHeader.astro';
 import ShareLink from '../../components/ShareLink.astro';
 import { render } from 'astro:content';
 import { getRadar } from '../../data/radar-content';
+import { authors, authorPath } from '../../data/authors';
 
 export async function getStaticPaths() {
   const radar = await getRadar({ includePreview: import.meta.env.MODE === 'preview' });
@@ -14,10 +15,14 @@ const markdown = item.kind === 'markdown' ? item : undefined;
 const Content = markdown ? (await render(markdown.entry)).Content : undefined;
 const notice = markdown?.notice ?? 'Conteúdo geral e informativo. Não constitui consulta, parecer ou recomendação jurídica para um caso concreto.';
 const path = `/radar/${item.slug}`;
-const gilberto = { name: 'Gilberto Jacob', oab: 'OAB/PR 17.158', path: '/#gilberto-jacob' };
-const professional = markdown?.author === 'gilberto-jacob' ? { role: 'Autoria', ...gilberto }
-  : markdown?.technicalLead === 'gilberto-jacob' ? { role: 'Responsável técnico', ...gilberto }
-  : undefined;
+const editorial = markdown?.level === 'Editorial';
+const terraRoxa = item.slug === 'impenhorabilidade-pequena-propriedade-rural' || editorial;
+const author = authors.find(({ slug }) => slug === markdown?.author);
+const technicalLead = authors.find(({ slug }) => slug === markdown?.technicalLead);
+const credits = [
+  { role: 'Autoria', profile: author },
+  { role: 'Responsável técnico', profile: technicalLead },
+];
 const relatedTools = new Map([
   ['renegociacao-credito-rural-garantias', 'credito-rural'],
   ['regularidade-ambiental-credito-rural', 'checklist-credito-rural'],
@@ -32,22 +37,27 @@ const article = {
   datePublished: item.dateIso,
   dateModified: markdown?.modifiedDate ?? item.dateIso,
   mainEntityOfPage: SITE + path,
-  author: markdown?.author === 'gilberto-jacob'
-    ? { '@type': 'Person', name: gilberto.name, url: SITE + gilberto.path }
+  author: author
+    ? { '@type': 'Person', name: author.name, url: SITE + authorPath(author.slug) }
     : { '@type': 'Organization', name: 'JGG Group', url: SITE },
+  contributor: technicalLead && technicalLead !== author
+    ? { '@type': 'Person', name: technicalLead.name, url: SITE + authorPath(technicalLead.slug) }
+    : undefined,
   image: new URL(markdown?.image ?? '/og.png', SITE).href,
   publisher: { '@type': 'Organization', name: 'JGG Group' },
 };
 ---
-<Base terraRoxa={item.slug === 'impenhorabilidade-pequena-propriedade-rural'} title={`${item.title} | JGG Group`} description={item.summary} path={item.published ? path : undefined} noindex={!item.published} og={{ title: item.title, description: item.summary, type: 'article', image: markdown?.image, publishedTime: item.published ? item.dateIso : undefined }} jsonLd={item.published ? [article] : []}>
+<Base terraRoxa={terraRoxa} title={`${item.title} | JGG Group`} description={item.summary} path={item.published ? path : undefined} noindex={!item.published} og={{ title: item.title, description: item.summary, type: 'article', image: markdown?.image, publishedTime: item.published ? item.dateIso : undefined }} jsonLd={item.published ? [article] : []}>
 <main class="subpage">
 <SubHeader cta="Avaliar meu cenário" href="/diagnostico" />
-<article class:list={['article-page', 'shell', { 'article-page-markdown': markdown }]}>
-  <a href="/radar" class="back-link">← Voltar ao Agro Radar</a>
+<article class:list={['article-page', 'shell', { 'article-page-markdown': markdown, 'article-page-editorial': editorial }]}>
+  <a href="/radar" class="back-link">← Voltar ao JGG Insights</a>
   <span class="tag">{item.category}</span>
   <p class="article-date">{!item.published && 'Prévia editorial · data prevista: '}<time datetime={item.dateIso}>{item.date}</time> · {item.source}</p>
   <h1>{item.title}</h1>
-  {professional && <p class="article-byline">{professional.role} · <a href={professional.path}>{professional.name}</a> · {professional.oab}</p>}
+  {credits.map(({ role, profile }) => profile && (
+    <p class="article-byline">{role} · <a href={authorPath(profile.slug)}>{profile.name}</a> · {profile.registration}</p>
+  ))}
   {markdown?.modifiedDate && <p class="article-date">Atualizado em <time datetime={markdown.modifiedDate}>{new Date(markdown.modifiedDate + 'T12:00:00Z').toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</time></p>}
   <p class="article-deck">{item.summary}</p>
   {item.published && <div class="article-share"><ShareLink path={path} /></div>}

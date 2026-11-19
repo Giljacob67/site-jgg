@@ -1,14 +1,17 @@
 ---
 import Base from '../layouts/Base.astro';
-import Logo from '../components/Logo.astro';
 import SiteNav from '../components/SiteNav.astro';
 import MarketTicker from '../components/MarketTicker.astro';
 import ContactForm from '../components/ContactForm.astro';
-import { getRadar } from '../data/radar-content';
+import { getRadar, getRadarFeatured } from '../data/radar-content';
+import { authorPath, gilbertoJacob } from '../data/authors';
 import { cases } from '../data/jurisprudencia';
 import { currentAlert as alert } from '../data/agro-alerta';
 
-const latest = (await getRadar({ includePreview: import.meta.env.MODE === 'preview' })).slice(0, 3);
+const radar = await getRadar({ includePreview: import.meta.env.MODE === 'preview' });
+const alertEditorial = radar.find(({ slug }) => slug === alert.editorialSlug);
+const featured = getRadarFeatured(radar);
+const recent = radar.filter((item) => item.published && item !== featured && item !== alertEditorial).slice(0, 2);
 const situations = [
   {
     area: 'Crédito rural e dívida bancária',
@@ -50,163 +53,255 @@ const tools = [
   description="Estratégia jurídica para crédito rural, terra, contratos, patrimônio, sucessão e tributação no agronegócio."
   path="/"
   terraRoxa
+  preload={[]}
 >
 <a class="agro-skip" href="#conteudo">Ir para o conteúdo</a>
 <div class="agro-home">
   <MarketTicker />
   <div class="agro-cover">
     <header class="agro-header">
-      <div class="agro-wrap agro-header-inner">
-        <a href="/" aria-label="JGG Group — início"><Logo /></a>
-        <SiteNav />
+      <div class="agro-wrap">
+        <p class="agro-edition">Maringá · Paraná <span>Mato Grosso</span></p>
+        <div class="agro-header-inner">
+          <a class="agro-masthead" href="/" aria-label="JGG Group — início">
+            <span aria-hidden="true">JGG</span>
+            <span class="agro-masthead-caption">Advocacia do agronegócio <em>desde a terra roxa</em></span>
+          </a>
+          <SiteNav />
+        </div>
+        <nav id="assuntos" class="agro-topic-nav" aria-label="Assuntos para o produtor rural">
+          <ul>
+            <li><a href="/guias/credito-rural-e-garantias">Dívida rural</a></li>
+            <li><a href="/jurisprudencia#sumula-298">Prorrogação do crédito</a></li>
+            <li><a href="/radar/impenhorabilidade-pequena-propriedade-rural">Penhora e garantias</a></li>
+            <li><a href="/guias/arrendamento-e-posse">Arrendamento</a></li>
+            <li><a href="/radar/holding-rural-planejamento-sucessorio">Sucessão rural</a></li>
+            <li><a class="agro-topic-all" href="/radar#arquivo">Todos os temas <span aria-hidden="true">→</span></a></li>
+          </ul>
+        </nav>
       </div>
     </header>
-    <section class="agro-wrap agro-hero" aria-labelledby="hero-title">
-      <div>
-        <p class="agro-kicker">Advocacia especializada · Direito Agrário · PR e MT</p>
-        <h1 id="hero-title">O campo move o Brasil.<br /><em>O direito protege</em><br /> quem faz acontecer.</h1>
-        <p class="agro-hero-lead">Crédito rural, garantias, sucessão e contratos para quem produz e investe no campo.</p>
-        <div class="agro-actions">
-          <a class="agro-button" href="#solucoes">Encontre orientação para sua situação</a>
-          <a class="agro-button agro-button-outline" href="/agro-alerta">Acompanhe o Agro Alerta <span aria-hidden="true">↗</span></a>
-        </div>
-      </div>
-      <picture>
-        <source media="(min-width: 721px)" srcset="/hero-agro.webp" />
-        <img class="agro-hero-photo" alt="" width="1672" height="941" decoding="async" />
-      </picture>
-    </section>
   </div>
 
   <main id="conteudo">
-    <section class="agro-wrap agro-section agro-divider" id="solucoes" aria-labelledby="practice-title">
-      <div class="agro-heading">
-        <div><p class="agro-kicker">Áreas de atuação</p><h2 id="practice-title">O que você precisa<br /><em>organizar no campo?</em></h2></div>
-        <p>Encontre informações sobre crédito, garantias, sucessão e contratos rurais.</p>
+    <section class="agro-wrap agro-hero" aria-labelledby="hero-title">
+      <p class="agro-kicker">Direito Agrário · Crédito rural · Terra · Sucessão</p>
+      <h1 id="hero-title">O campo move o Brasil. <em>O direito protege</em> quem faz acontecer.</h1>
+      <div class="agro-hero-spread">
+        <img
+          class="agro-hero-photo"
+          src="/hero-amanhecer-jgg-1024.webp"
+          srcset="/hero-amanhecer-jgg-640.webp 640w, /hero-amanhecer-jgg-1024.webp 1024w, /hero-amanhecer-jgg-1672.webp 1672w"
+          sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1360px) 64vw, 864px"
+          alt="Lavoura ao amanhecer, com uma araucária e uma placa da JGG na cerca"
+          width="1672"
+          height="941"
+          decoding="async"
+          fetchpriority="high"
+        />
+        <div class="agro-hero-aside">
+          <p class="agro-hero-lead">Crédito rural, garantias, sucessão e contratos para quem produz e investe no campo.</p>
+          <div class="agro-actions">
+            <a class="agro-button" href="#contato">Fale com a JGG <span aria-hidden="true">↗</span></a>
+            <a class="agro-button agro-button-outline" href="#agro-alerta">Acompanhe o Agro Alerta <span aria-hidden="true">↓</span></a>
+            <a class="agro-text-link" href="#solucoes">Encontre orientação para sua situação <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
       </div>
-      <div class="agro-grid agro-practice-grid">
-        {situations.map(({ area, question, text, href, link }) => (
-          <article class="agro-card">
-            <p class="agro-kicker">{area}</p>
-            <h3>{question}</h3><p>{text}</p>
-            <a class="agro-text-link" href={href}>{link} <span aria-hidden="true">→</span></a>
-          </article>
-        ))}
-      </div>
-      <p class="practice-related"><a class="agro-text-link" href="/radar/regularidade-ambiental-credito-rural">Consultar conteúdo ambiental e regulatório →</a></p>
     </section>
 
-    <section class="agro-wrap agro-alert" id="agro-alerta" aria-labelledby="alert-title">
-      <div class="agro-alert-heading">
-        <p class="agro-kicker">JGG Agro Alerta</p>
-        <h2 id="alert-title">As decisões que movimentam o Direito Agrário.</h2>
-        <p>Notícias, legislação e julgamentos relevantes, com análises sobre seus impactos para quem produz.</p>
-      </div>
-      <article class="agro-news">
-        <div class="agro-meta"><span>{alert.topic}</span><time datetime={alert.date}>{alert.dateLabel}</time></div>
-        <h3>{alert.title}</h3>
-        <p>{alert.description}</p>
-        <p><strong>Situação em {alert.checkedLabel}</strong> · {alert.status}</p>
-        <a class="agro-button" href="/agro-alerta">Ler o Agro Alerta <span aria-hidden="true">↗</span></a>
-        <p class="agro-source">Fonte oficial: <a href={alert.source}>tramitação no Congresso Nacional</a>.</p>
-      </article>
-      <div class="agro-alert-grid">
-        <article class="agro-alert-card">
-          <h3>Jurisprudência comentada</h3>
-          <p>Decisões relevantes para quem produz.</p>
-          <a href="#jurisprudencia">Acompanhe as decisões <span aria-hidden="true">→</span></a>
-        </article>
-        <article class="agro-alert-card">
-          <h3>Mudanças na legislação</h3>
-          <p>Novas regras e seus possíveis efeitos na atividade rural.</p>
-          <a href={alert.source}>Acompanhe a tramitação <span aria-hidden="true">↗</span></a>
+    <section class="agro-alert" id="agro-alerta" aria-labelledby="alert-title">
+      <div class="agro-wrap agro-section agro-alert-spread">
+        <div class="agro-alert-heading">
+          <p class="agro-kicker">JGG Agro Alerta</p>
+          <h2 id="alert-title">As decisões que movimentam <em>o Direito Agrário.</em></h2>
+          <p>Notícias, legislação e julgamentos relevantes, com análises sobre seus impactos para quem produz.</p>
+        </div>
+        <article class="agro-news">
+          <div class="agro-meta"><span>{alert.topic}</span><time datetime={alert.date}>{alert.dateLabel}</time></div>
+          <h3>{alert.title}</h3>
+          <p>{alert.description}</p>
+          <p class="agro-alert-status"><strong>Situação em {alert.checkedLabel}</strong><br />{alert.status}</p>
+          <div class="agro-actions">
+            {alertEditorial && <a class="agro-text-link" href={`/radar/${alertEditorial.slug}`}>Ler o editorial da JGG <span aria-hidden="true">↗</span></a>}
+            <a class="agro-text-link" href="/agro-alerta">Acompanhar a tramitação <span aria-hidden="true">↗</span></a>
+          </div>
         </article>
       </div>
     </section>
 
     <section class="agro-wrap agro-section" id="agro-radar" aria-labelledby="radar-title">
-      <div class="agro-heading">
-        <div><p class="agro-kicker">Inteligência para o campo</p><h2 id="radar-title">Agro Radar</h2></div>
-        <p>Análises jurídicas, decisões dos tribunais e mudanças legislativas que impactam a atividade rural.</p>
+      <div class="agro-heading agro-radar-heading">
+        <div><p class="agro-kicker">Direito Agrário e Crédito Rural</p><h2 id="radar-title">JGG Insights</h2></div>
+        <a class="agro-text-link" href="/radar">Ver o acervo <span aria-hidden="true">→</span></a>
       </div>
       <div class="agro-editorial">
-        {latest.map((item, index) => (
-          <article class:list={['agro-card', { 'agro-card-featured': index === 0 }]}>
-            <div class="agro-meta"><span>{item.category}</span><time datetime={item.dateIso}>{item.date}</time></div>
-            <h3><a href={`/radar/${item.slug}`}>{item.title}</a></h3>
-            <p>{item.summary}</p>
-            <footer><span>{item.published ? item.source : 'Prévia editorial'}</span><a href={`/radar/${item.slug}`}>Ler análise <span aria-hidden="true">↗</span></a></footer>
+        {featured && (
+          <article class="agro-story agro-story-featured">
+            <div class="agro-meta"><span>{featured.category}{!featured.published && ' · Prévia editorial'}</span><time datetime={featured.dateIso}>{featured.date}</time></div>
+            <h3><a href={`/radar/${featured.slug}`}>{featured.title}</a></h3>
+            <p>{featured.summary}</p>
+            <a class="agro-text-link" href={`/radar/${featured.slug}`}>Ler análise <span aria-hidden="true">↗</span></a>
           </article>
-        ))}
+        )}
+        <div class="agro-editorial-briefs">
+          {recent.map((item) => (
+            <article class="agro-story">
+              <div class="agro-meta"><span>{item.category}</span><time datetime={item.dateIso}>{item.date}</time></div>
+              <h3><a href={`/radar/${item.slug}`}>{item.title}</a></h3>
+              <p>{item.summary}</p>
+            </article>
+          ))}
+        </div>
       </div>
-      <a class="agro-text-link" href="/radar">Ver o acervo do Agro Radar <span aria-hidden="true">→</span></a>
+    </section>
+
+    <section class="agro-practice" id="solucoes" aria-labelledby="practice-title">
+      <div class="agro-wrap agro-section">
+        <div class="agro-heading">
+          <h2 id="practice-title">Direito do campo, <em>por inteiro.</em></h2>
+          <p>Encontre informações sobre crédito, garantias, sucessão e contratos rurais.</p>
+        </div>
+        <div class="agro-grid agro-practice-grid">
+          {situations.map(({ area, question, text, href, link }) => (
+            <article class="agro-card">
+              <p class="agro-kicker">{area}</p>
+              <h3>{question}</h3><p>{text}</p>
+              <a class="agro-text-link" href={href}>{link} <span aria-hidden="true">→</span></a>
+            </article>
+          ))}
+        </div>
+        <p class="practice-related"><a class="agro-text-link" href="/radar/regularidade-ambiental-credito-rural">Consultar conteúdo ambiental e regulatório <span aria-hidden="true">→</span></a></p>
+      </div>
     </section>
 
     <section class="agro-tools" id="ferramentas" aria-labelledby="tools-title">
       <div class="agro-wrap agro-section">
         <div class="agro-heading">
-          <div><p class="agro-kicker">Recursos JGG</p><h2 id="tools-title">Ferramentas para<br /><em>decidir melhor.</em></h2></div>
-          <p>Pontos de partida para organizar informações da operação rural.</p>
+          <div><p class="agro-kicker">Recursos JGG</p><h2 id="tools-title">Ferramentas para <em>decidir melhor.</em></h2></div>
+          <a class="agro-text-link" href="/ferramentas">Todas as ferramentas <span aria-hidden="true">→</span></a>
         </div>
         <div class="agro-grid">
-          {tools.map(([title, text, url]) => <a class="agro-card agro-tool" href={url}><h3>{title} <span aria-hidden="true">↗</span></h3><p>{text}</p></a>)}
+          {tools.map(([title, text, url]) => (
+            <a class="agro-card agro-tool" href={url}>
+              <span aria-hidden="true">↗</span>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </a>
+          ))}
         </div>
-        <div class="agro-actions">
-          <a class="agro-button" href="/diagnostico">Iniciar triagem informativa <span aria-hidden="true">↗</span></a>
+        <div class="agro-triage">
+          <p>Faça a triagem informativa para organizar os dados da sua situação.</p>
           <a class="agro-text-link" href="/ferramentas/checklist-credito-rural">Checklist de crédito rural</a>
-          <a class="agro-text-link" href="/ferramentas">Todas as ferramentas <span aria-hidden="true">→</span></a>
+          <a class="agro-button" href="/diagnostico">Iniciar triagem <span aria-hidden="true">↗</span></a>
         </div>
       </div>
     </section>
 
-    <section class="agro-wrap agro-section" id="jurisprudencia" aria-labelledby="cases-title">
-      <div class="agro-heading">
-        <div><p class="agro-kicker">Fontes oficiais</p><h2 id="cases-title">Jurisprudência</h2></div>
-        <p>Consulte decisões e entendimentos diretamente no Superior Tribunal de Justiça.</p>
-      </div>
-      <div class="agro-grid">
-        {cases.map(({ slug, identifier, title }) => (
-          <article class="agro-card"><p class="agro-meta">{identifier} · STJ</p><h3>{title}</h3><a href={`/jurisprudencia#${slug}`}>Ver decisão e fonte <span aria-hidden="true">→</span></a></article>
-        ))}
+    <section class="agro-cases" id="jurisprudencia" aria-labelledby="cases-title">
+      <div class="agro-wrap agro-section">
+        <div class="agro-heading">
+          <div><p class="agro-kicker">Fontes oficiais · STJ</p><h2 id="cases-title">Jurisprudência</h2></div>
+          <p>Consulte decisões e entendimentos diretamente no Superior Tribunal de Justiça.</p>
+        </div>
+        <div class="agro-grid agro-cases-grid">
+          {cases.map(({ slug, kind, number, state, title }) => (
+            <a class="agro-card agro-case" href={`/jurisprudencia#${slug}`}>
+              <p class="agro-meta"><span>{kind}{state && ` · ${state}`}</span><span>STJ</span></p>
+              <p class="agro-case-number">{number}</p>
+              <h3>{title}</h3>
+              <span class="agro-case-link">Ver decisão e fonte <span aria-hidden="true">→</span></span>
+            </a>
+          ))}
+        </div>
       </div>
     </section>
 
     <section class="agro-team" id="equipe" aria-labelledby="team-title">
       <div class="agro-wrap agro-section">
         <div class="agro-heading">
-          <div><p class="agro-kicker">Quem está ao seu lado</p><h2 id="team-title">Especialistas<br /> no que <em>importa.</em></h2></div>
+          <h2 id="team-title">Especialistas no que <em>importa.</em></h2>
           <p>Atuação integrada em Direito Agrário, Bancário, Tributário e Patrimonial, com presença no Paraná e em Mato Grosso.</p>
         </div>
         <ul class="agro-grid agro-people">
-          <li id="gilberto-jacob"><strong>Gilberto Jacob</strong><span>Sócio fundador · OAB/PR 17.158</span></li>
-          <li><strong>Felipe Ricardo Greczyszn</strong><span>Sócio fundador · OAB/PR 136.387</span></li>
-          <li><strong>Reginaldo Greczyszn</strong><span>Sócio residente · Mato Grosso</span></li>
+          <li id={gilbertoJacob.slug}>
+            <img
+              class="agro-team-portrait"
+              src={gilbertoJacob.portrait.src}
+              srcset={`${gilbertoJacob.portrait.src} 400w, ${gilbertoJacob.portrait.large} 800w`}
+              sizes="(max-width: 660px) 31vw, (max-width: 860px) 46vw, (max-width: 1360px) 31vw, 416px"
+              alt={'Retrato de ' + gilbertoJacob.name}
+              width={gilbertoJacob.portrait.width}
+              height={gilbertoJacob.portrait.height}
+              loading="lazy"
+              decoding="async"
+            />
+            <div class="agro-person-details">
+              <strong><a class="agro-person-profile" href={authorPath(gilbertoJacob.slug)}>{gilbertoJacob.name}</a></strong>
+              <span class="agro-person-role">{gilbertoJacob.role}</span>
+              <span class="agro-person-register">{gilbertoJacob.registration}</span>
+            </div>
+          </li>
+          <li>
+            <div class="agro-team-portrait agro-team-initials" aria-hidden="true">FG</div>
+            <div class="agro-person-details">
+              <strong>Felipe Ricardo Greczyszn</strong>
+              <span class="agro-person-role">Sócio fundador</span>
+              <span class="agro-person-register">OAB/PR 136.387</span>
+            </div>
+          </li>
+          <li>
+            <div class="agro-team-portrait agro-team-initials" aria-hidden="true">RG</div>
+            <div class="agro-person-details">
+              <strong>Reginaldo Greczyszn</strong>
+              <span class="agro-person-role">Sócio residente</span>
+              <span class="agro-person-register">Mato Grosso</span>
+            </div>
+          </li>
         </ul>
       </div>
     </section>
 
-    <section class="agro-wrap agro-section agro-contact" id="contato" aria-labelledby="contact-title">
-      <div>
-        <p class="agro-kicker">Contato</p>
-        <h2 id="contact-title">O seu próximo passo<br /> <em>merece segurança.</em></h2>
-        <p>Maringá — PR<br />Av. Euclides da Cunha, 526</p>
-        <p>Atuação no Paraná e em Mato Grosso.</p>
-        <div class="agro-actions">
-          <a class="agro-text-link" href="mailto:contato@jgggroup.com.br">contato@jgggroup.com.br</a>
-          <a class="agro-text-link" href="https://wa.me/5544988335397">WhatsApp <span aria-hidden="true">↗</span></a>
+    <section class="agro-contact-band" id="contato" aria-labelledby="contact-title">
+      <div class="agro-wrap agro-section agro-contact">
+        <div class="agro-contact-intro">
+          <h2 id="contact-title">O seu próximo passo <em>merece segurança.</em></h2>
+          <dl class="agro-contact-details">
+            <div>
+              <dt>Escritório</dt>
+              <dd>Av. Euclides da Cunha, 526<br />Maringá — PR</dd>
+            </div>
+            <div>
+              <dt>Atuação</dt>
+              <dd>Paraná e Mato Grosso</dd>
+            </div>
+          </dl>
+          <div class="agro-actions">
+            <a class="agro-button" href="https://wa.me/5544988335397">WhatsApp <span aria-hidden="true">↗</span></a>
+            <a class="agro-button agro-button-outline" href="mailto:contato@jgggroup.com.br">contato@jgggroup.com.br</a>
+          </div>
         </div>
+        <ContactForm />
       </div>
-      <ContactForm />
     </section>
   </main>
 
   <footer class="agro-footer">
     <div class="agro-wrap agro-footer-main">
-      <a href="/" aria-label="JGG Group — início"><Logo /></a>
-      <p>Estratégia jurídica para quem move o agronegócio.<br />Paraná · Mato Grosso</p>
-      <nav aria-label="Rodapé"><a href="/radar">Agro Radar</a><a href="/ferramentas">Ferramentas</a><a href="/diagnostico">Diagnóstico</a><a href="https://www.linkedin.com/company/jgggroup">LinkedIn</a><a href="https://www.instagram.com/jgggroup/">Instagram</a></nav>
+      <div class="agro-footer-brand">
+        <a href="/" aria-label="JGG Group — início">JGG</a>
+        <p>Estratégia jurídica para quem move o agronegócio.</p>
+      </div>
+      <nav aria-label="Rodapé">
+        <a href="/radar">JGG Insights</a>
+        <a href="/ferramentas">Ferramentas</a>
+        <a href="/diagnostico">Diagnóstico</a>
+        <a href="https://www.linkedin.com/company/jgggroup">LinkedIn</a>
+        <a href="https://www.instagram.com/jgggroup/">Instagram</a>
+        <a href="/privacidade">Privacidade</a>
+      </nav>
+      <small>© JGG Group · OAB/PR 17.158</small>
     </div>
-    <div class="agro-wrap agro-footer-bottom"><span>© JGG Group · OAB/PR 17.158</span><a href="/privacidade">Política de Privacidade</a></div>
   </footer>
 </div>
 </Base>

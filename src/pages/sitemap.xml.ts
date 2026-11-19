@@ -1,4 +1,5 @@
 import { getRadar } from '../data/radar-content';
+import { authors, authorPath } from '../data/authors';
 
 const SITE = 'https://jgggroup.com.br';
 const radar = await getRadar();
@@ -7,6 +8,7 @@ const pages: { path: string; modified?: string }[] = [
   '/ferramentas/pequena-propriedade', '/ferramentas/arrendamento',
   '/ferramentas/credito-rural', '/ferramentas/checklist-credito-rural', '/privacidade',
   '/guias/credito-rural-e-garantias', '/guias/arrendamento-e-posse',
+  ...authors.map(({ slug }) => authorPath(slug)),
 ].map((path) => ({ path }));
 
 for (const article of radar) {

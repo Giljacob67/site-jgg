@@ -4,27 +4,59 @@ import SubHeader from '../components/SubHeader.astro';
 import { cases } from '../data/jurisprudencia';
 ---
 <Base
+  terraRoxa
   title="Jurisprudência agrária | JGG Group"
   description="Decisões e entendimentos do Superior Tribunal de Justiça sobre crédito rural, pequena propriedade e arrendamento."
   path="/jurisprudencia"
 >
   <div class="subpage">
-    <SubHeader cta="Agro Radar" href="/radar" />
+    <SubHeader cta="JGG Insights" href="/radar" />
     <main class="legal-page shell">
       <p class="eyebrow">Fontes oficiais</p>
       <h1>Jurisprudência agrária</h1>
       <p>Decisões do Superior Tribunal de Justiça sobre a atividade rural.</p>
       {cases.map((item) => (
         <article class="agro-case" id={item.slug}>
-          <p class="agro-meta">STJ · {item.identifier} · {item.panel}</p>
+          <p class="agro-meta">STJ · {`${item.kind} ${item.number}${item.state ? `/${item.state}` : ''}`} · {item.panel}</p>
           <h2>{item.title}</h2>
           <p>Julgamento em {item.date} · Publicação em {item.published}</p>
           <p>{item.decision}</p>
-          <p>{item.context}</p>
-          <a class="agro-text-link" href={item.url}>{item.source} <span aria-hidden="true">↗</span></a>
+          <dl class="case-explanation">
+            <div><dt>O que pesou</dt><dd>{item.reasoning}</dd></div>
+            <div><dt>Até onde se aplica</dt><dd>{item.limits}</dd></div>
+          </dl>
+          <ul class="case-links" aria-label="Fontes oficiais">
+            {[[item.source, item.url], ...item.references].map(([label, href]) => (
+              <li><a href={href}>{label} <span aria-hidden="true">↗</span></a></li>
+            ))}
+          </ul>
+          <ul class="case-links case-resources" aria-label="Guias e ferramentas relacionadas">
+            {item.related.map(([label, href]) => (
+              <li><a href={href}>{label} <span aria-hidden="true">→</span></a></li>
+            ))}
+          </ul>
         </article>
       ))}
-      <a href="/radar" class="back-link">← Voltar ao Agro Radar</a>
+      <a href="/radar" class="back-link">← Voltar ao JGG Insights</a>
     </main>
   </div>
 </Base>
+<style>
+  .agro-case { margin-top: 1.5rem; }
+  .agro-case h2 { margin: .45rem 0 .3rem; line-height: 1.1; }
+  .agro-case p + p { margin-top: .55rem; }
+  .case-explanation { display: grid; gap: .85rem; margin-block: 1rem; }
+  .case-explanation div { border-inline-start: 2px solid var(--terra); padding-inline-start: .8rem; }
+  .case-explanation dt { font-weight: 700; }
+  .case-explanation dd { margin: .2rem 0 0; line-height: 1.6; }
+  .case-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    min-height: 44px;
+    color: var(--terra);
+    text-decoration: underline;
+    text-underline-offset: .2em;
+  }
+  .case-resources { border-top: 1px solid var(--line); padding-top: .3rem; }
+</style>

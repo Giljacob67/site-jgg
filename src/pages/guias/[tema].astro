@@ -8,14 +8,58 @@ export function getStaticPaths() {
     {
       slug: 'credito-rural-e-garantias',
       title: 'Crédito rural, dívida bancária e garantias',
-      description: 'Organize contratos, encargos e garantias para entender melhor a operação e reunir os documentos pertinentes.',
-      links: [
-        ['Checklist de documentos do crédito rural', '/ferramentas/checklist-credito-rural'],
-        ['Comparar encargos de crédito rural', '/ferramentas/credito-rural'],
-        ['O que conferir antes de renegociar', '/radar/renegociacao-credito-rural-garantias'],
-        ['Pequena propriedade e garantias', '/radar/impenhorabilidade-pequena-propriedade-rural'],
-        ['Alongamento de dívidas e decisões do STJ', '/jurisprudencia'],
-        ['Organizar informações na triagem', '/diagnostico'],
+      description: 'Encontre sua situação e veja o que conferir, quais documentos reunir e onde se aprofundar.',
+      situations: [
+        {
+          id: 'quebra-de-safra',
+          shortcut: 'Quebra de safra',
+          title: 'Tive quebra de safra e a parcela vai vencer',
+          check: 'Confira o vencimento, o programa e a fonte de recursos do contrato. Se você já procurou o banco, anote a data, o número do protocolo e se houve resposta. A regra de prorrogação depende do enquadramento da operação.',
+          documents: [
+            'Cédula ou contrato, aditivos e calendário de vencimentos.',
+            'Fotos datadas, laudo técnico ou outros registros da perda, quando disponíveis.',
+            'Histórico de produtividade e documentos de comercialização da safra.',
+            'Estimativa de receitas e despesas para demonstrar a capacidade de pagamento.',
+            'Pedido já apresentado ao banco, protocolo e resposta, se houver.',
+          ],
+          links: [
+            ['Consultar a Súmula 298 e seus limites', '/jurisprudencia#sumula-298'],
+            ['Abrir o checklist de documentos', '/ferramentas/checklist-credito-rural'],
+            ['Consultar o Manual de Crédito Rural', 'https://www3.bcb.gov.br/mcr'],
+          ],
+        },
+        {
+          id: 'parcelas-em-atraso',
+          shortcut: 'Parcelas em atraso',
+          title: 'Já estou em atraso ou recebi uma cobrança',
+          check: 'Identifique quais parcelas venceram e em que fase está a cobrança. Se houver citação, intimação ou aviso de leilão, confira a data de recebimento e os prazos indicados no documento.',
+          documents: [
+            'Contrato, aditivos, extratos e comprovantes de pagamento.',
+            'Memória de cálculo ou demonstrativo do saldo, com juros e encargos discriminados.',
+            'Notificações, correspondências com o credor e cópia da cobrança ou da citação.',
+          ],
+          links: [
+            ['Ler o que conferir antes de renegociar', '/radar/renegociacao-credito-rural-garantias'],
+            ['Comparar encargos da operação', '/ferramentas/credito-rural'],
+            ['Organizar as informações na triagem', '/diagnostico'],
+          ],
+        },
+        {
+          id: 'garantias',
+          shortcut: 'Pedido de novas garantias',
+          title: 'O banco pediu mais garantias',
+          check: 'Compare a minuta com os contratos atuais. Identifique quais bens e pessoas passam a responder pela operação e se houve mudança no valor, no prazo ou na forma de liberação da garantia.',
+          documents: [
+            'Minuta da proposta, contratos vigentes e aditivos, inclusive CPR ou CCB, quando houver.',
+            'Matrículas atualizadas dos imóveis e instrumentos das garantias já concedidas.',
+            'Relação dos bens e das pessoas indicados na nova proposta.',
+          ],
+          links: [
+            ['Ler sobre pequena propriedade e garantias', '/radar/impenhorabilidade-pequena-propriedade-rural'],
+            ['Consultar a decisão do STJ sobre consolidação da garantia', '/jurisprudencia#pequena-propriedade'],
+            ['Calcular a área em módulos fiscais', '/ferramentas/pequena-propriedade'],
+          ],
+        },
       ],
     },
     {
@@ -26,7 +70,7 @@ export function getStaticPaths() {
         ['Cláusulas de arrendamento a conferir', '/radar/arrendamento-rural-clausulas-essenciais'],
         ['Comparar parâmetros do arrendamento', '/ferramentas/arrendamento'],
         ['Matrícula, georreferenciamento e CAR', '/radar/matricula-georreferenciamento-car'],
-        ['Decisões do STJ sobre arrendamento e perda da propriedade', '/jurisprudencia'],
+        ['Decisão do STJ sobre arrendamento e perda da propriedade', '/jurisprudencia#arrendamento-rural'],
       ],
     },
   ];
@@ -34,22 +78,104 @@ export function getStaticPaths() {
 }
 
 const { guide } = Astro.props;
-const path = `/guias/${guide.slug}`;
+const path = '/guias/' + guide.slug;
 ---
-<Base title={`${guide.title} | JGG Group`} description={guide.description} path={path}>
+
+<Base terraRoxa title={guide.title + ' | JGG Group'} description={guide.description} path={path}>
   <main class="subpage">
     <SubHeader />
-    <article class="article-page shell">
+    <article class="article-page shell practical-guide">
       <a class="back-link" href="/#solucoes">← Voltar às áreas de atuação</a>
       <h1>{guide.title}</h1>
       <p class="article-deck">{guide.description}</p>
-      <h2>Ferramentas e leituras</h2>
-      <ul>{guide.links.map(([label, href]) => <li><a class="agro-text-link" href={href}>{label} →</a></li>)}</ul>
+      {guide.situations ? (
+        <>
+          <nav class="guide-contents" aria-label="Situações neste guia">
+            {guide.situations.map(({id, shortcut}) => <a href={'#' + id}>{shortcut}</a>)}
+          </nav>
+          {guide.situations.map((situation) => (
+            <section class="guide-situation" id={situation.id} aria-labelledby={situation.id + '-title'}>
+              <h2 id={situation.id + '-title'}>{situation.title}</h2>
+              <p>{situation.check}</p>
+              <h3>Documentos para reunir</h3>
+              <ul class="guide-documents">{situation.documents.map((document) => <li>{document}</li>)}</ul>
+              {situation.id === 'quebra-de-safra' && <button class="button copper guide-print" type="button" hidden>Imprimir guia e listas</button>}
+              <ul class="guide-links">{situation.links.map(([label, href]) => <li><a href={href}>{label} →</a></li>)}</ul>
+            </section>
+          ))}
+        </>
+      ) : (
+        <>
+          <h2>Ferramentas e leituras</h2>
+          <ul class="guide-links">{guide.links.map(([label, href]) => <li><a href={href}>{label} →</a></li>)}</ul>
+        </>
+      )}
       <p class="article-disclaimer">Conteúdo informativo. Cada situação exige análise dos documentos e das circunstâncias do caso.</p>
-      <ShareLink path={path} />
+      <div class="guide-share"><ShareLink path={path} /></div>
     </article>
   </main>
 </Base>
+
+<script>
+  const print = document.querySelector<HTMLButtonElement>('.guide-print');
+  if (print) {
+    print.addEventListener('click', () => window.print());
+    print.hidden = false;
+  }
+</script>
+
 <style>
-  li { margin-block: .9rem; }
+  .practical-guide .article-deck { margin-top: .85rem; }
+  .guide-contents {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .3rem .65rem;
+    margin-block: 1rem;
+  }
+  .guide-contents a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: .35rem .65rem;
+    border: 1px solid var(--line);
+    background: var(--palha);
+    font-size: .9rem;
+  }
+  .guide-situation {
+    border-top: 1px solid var(--line);
+    margin-top: 1.5rem;
+    padding-block: 1.25rem;
+  }
+  .guide-situation h2 { margin: 0 0 .45rem; line-height: 1.12; }
+  .guide-situation p { font-size: 1rem; }
+  .guide-situation h3 { font-weight: 700; margin: 1rem 0 .45rem; }
+  .guide-documents { list-style: disc; padding-inline-start: 1.25rem; }
+  .guide-documents li { margin-block: .3rem; }
+  .guide-links { margin-top: .55rem; }
+  .guide-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--terra);
+    text-decoration: underline;
+    text-underline-offset: .2em;
+  }
+  .guide-print:not([hidden]) {
+    display: inline-flex;
+    min-height: 44px;
+    margin-top: .85rem;
+  }
+  @media print {
+    :global(.agro-preview), :global(.agro-header), .practical-guide .back-link,
+    .guide-contents, .guide-print, .guide-share { display: none !important; }
+    .practical-guide { width: 100%; padding: 0; }
+    .practical-guide h1 { font-size: 23pt !important; line-height: 1.05; }
+    .practical-guide .article-deck { font-size: 12pt !important; }
+    .guide-situation { margin-top: .75rem; padding-block: .6rem; }
+    .guide-situation h2 { font-size: 16pt; break-after: avoid; }
+    .guide-situation p, .guide-documents { font-size: 10pt; line-height: 1.35; }
+    .guide-documents { list-style: square; break-inside: avoid; }
+    .guide-links { display: none; }
+    .practical-guide :is(h3, ul) { break-inside: avoid; }
+  }
 </style>

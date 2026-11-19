@@ -3,6 +3,10 @@ import Base from '../layouts/Base.astro';
 import SubHeader from '../components/SubHeader.astro';
 import ShareLink from '../components/ShareLink.astro';
 import { currentAlert as alert } from '../data/agro-alerta';
+import { getRadar } from '../data/radar-content';
+
+const radar = await getRadar({ includePreview: import.meta.env.MODE === 'preview' });
+const editorial = radar.find(({ slug }) => slug === alert.editorialSlug);
 ---
 <Base title="Agro Alerta | JGG Group" description="Acompanhe mudanças na legislação e decisões relevantes para o Direito Agrário, com data e fontes oficiais." path="/agro-alerta">
   <main class="subpage">
@@ -12,6 +16,7 @@ import { currentAlert as alert } from '../data/agro-alerta';
       <p class="article-date">{alert.topic} · <time datetime={alert.date}>{alert.dateLabel}</time></p>
       <h1>{alert.title}</h1>
       <p class="article-deck">{alert.description}</p>
+      {editorial && <p><a class="agro-text-link" href={`/radar/${editorial.slug}`}>Ler o editorial da JGG →</a></p>}
       <h2>Situação conferida em {alert.checkedLabel}</h2>
       <p>{alert.status}</p>
       <h2>Principais andamentos</h2>
@@ -19,9 +24,8 @@ import { currentAlert as alert } from '../data/agro-alerta';
         {alert.history.map((entry) => <li><time datetime={entry.date}>{entry.label}</time> · {entry.description}</li>)}
       </ul>
       <aside class="article-sources">
-        <strong>Fontes oficiais</strong>
+        <strong>Tramitação oficial</strong>
         <a href={alert.source}>Consultar tramitação no Congresso Nacional ↗</a>
-        <a href={alert.news}>Ler a notícia do Senado ↗</a>
       </aside>
       <div class="article-disclaimer">Conteúdo informativo. Consulte a tramitação para verificar movimentações posteriores à data indicada.</div>
       <ShareLink path="/agro-alerta" />

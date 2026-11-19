@@ -1,17 +1,17 @@
 <form class="agro-contact-form" data-contact action="/api/leads" method="post">
-  <h3>Fale com nossa equipe</h3>
+  <h3>Fale com a equipe</h3>
   <fieldset disabled>
     <legend class="agro-sr-only">Dados para contato</legend>
-    <label>Nome <input name="name" autocomplete="name" required maxlength="120" /></label>
     <div class="agro-contact-fields">
-      <label>E-mail <input name="email" type="email" autocomplete="email" required maxlength="160" /></label>
+      <label>Nome <input name="name" autocomplete="name" required maxlength="120" /></label>
       <label>WhatsApp <input name="phone" type="tel" autocomplete="tel" required maxlength="40" /></label>
+      <label>E-mail <input name="email" type="email" autocomplete="email" required maxlength="160" /></label>
+      <label>Assunto <input name="matter" required maxlength="120" /></label>
     </div>
-    <label>Assunto <input name="matter" required maxlength="120" /></label>
-    <label>Como podemos ajudar? <textarea name="summary" rows="4" required maxlength="2000"></textarea></label>
+    <label>Como podemos ajudar? <textarea name="summary" rows="3" required maxlength="2000"></textarea></label>
     <div class="lead-honeypot" aria-hidden="true"><label>Site <input name="website" tabindex="-1" autocomplete="off" /></label></div>
     <div class="agro-consent">
-      <label><input name="consent" type="checkbox" value="true" required /> Autorizo o uso dos dados para retorno sobre esta mensagem.</label>
+      <label><input name="consent" type="checkbox" value="true" required /> <span>Autorizo o uso dos dados para retorno sobre esta mensagem.</span></label>
       <a href="/privacidade">Política de Privacidade</a>
     </div>
     <button class="agro-button" type="submit">Enviar mensagem <span aria-hidden="true">↗</span></button>

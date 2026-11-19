@@ -2,6 +2,9 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { radarCategories } from './data/radar';
+import { authors } from './data/authors';
+
+const authorId = z.enum(authors.map(({ slug }) => slug));
 
 const radar = defineCollection({
   loader: glob({ base: './src/content/radar', pattern: '*.md' }),
@@ -10,11 +13,12 @@ const radar = defineCollection({
     summary: z.string().trim().min(1),
     category: z.enum(radarCategories),
     dateIso: z.iso.date(),
+    featuredFrom: z.iso.date().optional(),
     status: z.enum(['draft', 'approved']).default('draft'),
     level: z.string().trim().min(1).default('Análise'),
     source: z.string().trim().min(1).default('Análise JGG'),
-    author: z.enum(['gilberto-jacob']).optional(),
-    technicalLead: z.enum(['gilberto-jacob']).optional(),
+    author: authorId.optional(),
+    technicalLead: authorId.optional(),
     image: z.string().regex(/^\/compartilhar\/[a-z0-9-]+\.jpg$/).optional(),
     modifiedDate: z.iso.date().optional(),
     video: z.object({

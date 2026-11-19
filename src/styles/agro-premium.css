@@ -102,7 +102,6 @@
 .agro-people span { font-size: .875rem; margin-top: 6px; }
 
 .agro-contact { display: grid; grid-template-columns: 1fr .85fr; gap: clamp(24px, 7vw, 110px); align-items: start; }
-.agro-contact > div > p:not(.agro-kicker) { margin: 18px 0; }
 .agro-contact-form { border-radius: 14px; padding: clamp(18px, 3.2vw, 39px); background: var(--forest); color: var(--cream); }
 .agro-contact-form fieldset { padding: 0; margin: 18px 0 0; border: 0; min-inline-size: 0; }
 .agro-contact-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -121,10 +120,8 @@
 .agro-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 .agro-footer { background: var(--forest); color: var(--cream); padding: 30px 0 15px; font-size: .9rem; }
-.agro-footer-main, .agro-footer-bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px 26px; }
+.agro-footer-main { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px 26px; }
 .agro-footer-main nav { display: flex; gap: 10px 20px; flex-wrap: wrap; }
-.agro-footer-bottom { border-top: 1px solid #f4f0e750; margin-top: 24px; padding-top: 12px; font-size: .85rem; }
-.agro-footer-bottom a { text-decoration: underline; }
 .agro-home .market-bar { background: #eee6d5; }
 .agro-home :is(.market-info, .market-label) { background: #e7d9bb; }
 
@@ -170,8 +167,8 @@
 .tool-grid > .tool-card { background: #fffdf7; border: 1px solid var(--line); border-radius: 12px; }
 
 .agro-preview { margin: 0; padding: .45rem 1rem; background: #f4e1b9; color: var(--forest); text-align: center; font-size: .875rem; }
-.agro-case { border-top: 1px solid var(--line); padding: 22px 0 26px; }
-.agro-case p.agro-meta { font-size: .82rem; }
+.legal-page .agro-case { border-top: 1px solid var(--line); padding: 22px 0 26px; }
+.legal-page .agro-case p.agro-meta { font-size: .82rem; }
 
 .agro-home .market-viewport { overflow-x: auto; scrollbar-width: thin; scrollbar-color: #987024 #eee6d5; }
 .agro-home .market-track { animation: none; height: 100%; }
