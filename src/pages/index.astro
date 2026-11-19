@@ -7,6 +7,7 @@ import { getRadar, getRadarFeatured } from '../data/radar-content';
 import { authorPath, gilbertoJacob } from '../data/authors';
 import { cases } from '../data/jurisprudencia';
 import { currentAlert as alert } from '../data/agro-alerta';
+import { officePhones } from '../data/office-phones';
 
 const radar = await getRadar({ includePreview: import.meta.env.MODE === 'preview' });
 const alertEditorial = radar.find(({ slug }) => slug === alert.editorialSlug);
@@ -274,6 +275,14 @@ const tools = [
             <div>
               <dt>Atuação</dt>
               <dd>Paraná e Mato Grosso</dd>
+            </div>
+            <div>
+              <dt>Telefone fixo</dt>
+              <dd><a href={`tel:${officePhones.landline.number}`}>{officePhones.landline.label}</a></dd>
+            </div>
+            <div>
+              <dt>Celulares</dt>
+              {officePhones.mobiles.map(({ label, number }) => <dd><a href={`tel:${number}`}>{label}</a></dd>)}
             </div>
           </dl>
           <div class="agro-actions">

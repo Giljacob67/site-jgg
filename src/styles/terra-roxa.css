@@ -792,6 +792,15 @@
   margin: 0;
 }
 
+.terra-roxa .agro-contact-details a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: .18em;
+}
+
 .terra-roxa .agro-contact-intro .agro-button {
   min-height: 54px;
   padding-inline: clamp(14px, 1.7vw, 24px);
