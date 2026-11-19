@@ -278,7 +278,7 @@ const tools = [
             <div>
               <dt>Escritório</dt>
               <dd>
-                <a href={mapsUrl.href} aria-label={`${streetAddress}, ${addressLocality} — ${addressRegion}, CEP ${postalCode}. Ver no Google Maps`}>
+                <a href={mapsUrl.href} target="_blank" rel="noopener" aria-label={`${streetAddress}, ${addressLocality} — ${addressRegion}, CEP ${postalCode}. Ver no Google Maps (abre em nova aba)`}>
                   <span>{streetAddress}<br />{addressLocality} — {addressRegion}<br />CEP {postalCode} <span aria-hidden="true">↗</span></span>
                 </a>
               </dd>
