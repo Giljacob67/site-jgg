@@ -1,24 +1,145 @@
 ---
 import Base from '../../layouts/Base.astro';
 import ToolPage from '../../components/ToolPage.astro';
+import ToolActions from '../../components/ToolActions.astro';
+
+const path = '/ferramentas/pequena-propriedade';
+const title = 'Enquadramento da pequena propriedade rural';
+const disclaimer = 'Resultado informativo baseado nos dados fornecidos. O cálculo da área e as respostas não determinam se o imóvel pode ser penhorado.';
+const states = 'AC AL AM AP BA CE DF ES GO MA MG MS MT PA PB PE PI PR RJ RN RO RR RS SC SE SP TO'.split(' ');
 ---
-<Base title="Verificador de pequena propriedade rural | JGG Group" description="Compare a área do imóvel com o módulo fiscal do município e organize os requisitos legais." path="/ferramentas/pequena-propriedade">
-<ToolPage title="Enquadramento da pequena propriedade rural" intro="Informe a área do imóvel e o módulo fiscal vigente no município. O resultado é uma triagem, não uma conclusão sobre impenhorabilidade." disclaimer="Resultado geral e informativo. Não constitui parecer, laudo ou conclusão jurídica. A aplicação das normas depende dos fatos e documentos do caso.">
-<div class="calculator-grid"><label>Área total do imóvel (hectares)<input name="area" inputmode="decimal" placeholder="Ex.: 72" /></label><label>Módulo fiscal do município (hectares)<input name="modulo" inputmode="decimal" placeholder="Consulte no Incra" /></label></div><label class="calc-check"><input type="checkbox" name="familia" /> A área é trabalhada pela família</label>
+<Base title="Verificador de pequena propriedade rural | JGG Group" description="Calcule os módulos fiscais pelo município e organize os documentos pertinentes à pequena propriedade rural." path={path}>
+<ToolPage title={title} intro="Escolha o município e informe a área. Você verá a dimensão em módulos fiscais e quais informações ajudam a entender a situação." disclaimer={disclaimer}>
+<div class="calculator-grid">
+  <label>UF do imóvel<select name="uf"><option value="">Selecione</option>{states.map((state) => <option>{state}</option>)}</select></label>
+  <label>Município<select name="municipio" disabled><option value="">Selecione a UF</option></select></label>
+  <label>Área do imóvel (hectares)<input name="area" inputmode="decimal" placeholder="Ex.: 56" /></label>
+  <label>Módulo fiscal (hectares)<input name="modulo" readonly placeholder="Preenchido pelo município" /></label>
+</div>
+<p data-incra-status role="status"></p>
+<details class="tool-context">
+  <summary>Adicionar informações sobre o imóvel e a dívida <small>(opcional)</small></summary>
+  <div class="calculator-grid">
+    <label>A família trabalha na área?<select name="familia"><option value="">Não sei</option><option value="sim">Sim</option><option value="nao">Não</option></select></label>
+    <label>O titular ou a família têm outros imóveis rurais?<select name="imoveis"><option value="">Não sei</option><option value="nao">Não</option><option value="continuos">Sim, terrenos contínuos</option><option value="distintos">Sim, terrenos separados</option><option value="incerto">Sim, sem confirmação de continuidade</option></select></label>
+    <label>Qual a origem da dívida?<select name="divida"><option value="">Não sei</option><option value="rural">Atividade produtiva rural</option><option value="outra">Outra origem</option><option value="nenhuma">Não há dívida em discussão</option></select></label>
+    <label>Qual garantia consta do contrato?<select name="garantia"><option value="">Não sei</option><option value="fiduciaria">Alienação fiduciária</option><option value="hipoteca">Hipoteca</option><option value="outra">Outra garantia</option><option value="nenhuma">Nenhuma</option></select></label>
+  </div>
+</details>
 <div data-out hidden aria-live="polite"></div>
-<div class="calc-sources"><b>Fontes oficiais</b><a href="https://www.gov.br/incra/pt-br/assuntos/governanca-fundiaria/modulo-fiscal" target="_blank" rel="noreferrer">Índices básicos e módulos fiscais — Incra ↗</a><a href="https://www.planalto.gov.br/ccivil_03/leis/l8629.htm" target="_blank" rel="noreferrer">Lei nº 8.629/1993 — Planalto ↗</a></div>
+<ToolActions title={title} path={path} disclaimer={disclaimer} />
+<section class="calc-sources" aria-label="Fontes oficiais">
+  <b>Fontes oficiais</b>
+  <a href="https://www.gov.br/incra/pt-br/centrais-de-conteudos/legislacao/instrucao-especial/">Incra · Instruções Especiais 5/2022 e 6/2025 ↗</a>
+  <a href="https://www.gov.br/pt-br/servicos/consultar-indices-basicos">Consulta de índices básicos por município ↗</a>
+  <a href="https://www2.camara.leg.br/legin/fed/lei/1993/lei-8629-25-fevereiro-1993-363222-normaatualizada-pl.html">Lei 8.629/1993, art. 4º ↗</a>
+  <a href="https://portal.stf.jus.br/jurisprudenciaRepercussao/verAndamentoProcesso.asp?classeProcesso=ARE&incidente=5164056&numeroProcesso=1038507&numeroTema=961">Tema 961 do STF ↗</a>
+  <a href="https://processo.stj.jus.br/SCON/GetPDFINFJ?edicao=0833">Tema 1234 do STJ ↗</a>
+  <a href="https://processo.stj.jus.br/SCON/GetPDFINFJ?edicao=0616">REsp 1.591.298/RJ · origem da dívida ↗</a>
+  <a href="https://processo.stj.jus.br/SCON/GetPDFINFJ?edicao=0875">REsp 2.233.886/RS · alienação fiduciária ↗</a>
+</section>
+<p><a class="agro-text-link" href="/radar/impenhorabilidade-pequena-propriedade-rural">Ler a análise sobre pequena propriedade rural →</a></p>
 </ToolPage>
 </Base>
 <script>
   import { num, field, render } from '../../scripts/calc';
+
+  type Municipality = [name: string, fiscalModule: number, minimumParcel: number];
+  const isMunicipality = (row: unknown): row is Municipality =>
+    Array.isArray(row) && row.length === 3 && typeof row[0] === 'string' &&
+    typeof row[1] === 'number' && row[1] > 0 && typeof row[2] === 'number' && row[2] > 0;
+
+  const format = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 });
   const out = document.querySelector<HTMLElement>('[data-out]')!;
-  const update = () => {
-    const area = num(field('area').value), mod = num(field('modulo').value), fam = field('familia').checked;
-    if (!(area > 0 && mod > 0)) return render(out, null);
-    const count = area / mod, within = count <= 4;
-    render(out,
-      `<small>TRIAGEM INICIAL</small><h2>${count.toLocaleString('pt-BR', { maximumFractionDigits: 2 })} módulos fiscais</h2><p>${within ? 'A dimensão informada está dentro do limite de até quatro módulos fiscais usado na definição legal.' : 'A dimensão informada ultrapassa quatro módulos fiscais.'} ${fam ? 'Você indicou exploração familiar.' : 'Ainda é necessário confirmar a exploração familiar.'}</p><strong>Devem ser conferidos: titularidade, exploração familiar, conjunto de imóveis, origem da dívida, garantia e documentos do caso.</strong>`,
-      within && fam ? 'positive' : 'attention');
-  };
-  document.querySelectorAll('input').forEach((i) => i.addEventListener('input', update));
+  const status = document.querySelector<HTMLElement>('[data-incra-status]')!;
+  const municipality = field('municipio');
+  const uf = field('uf');
+  const moduleField = field('modulo');
+  let table: Promise<unknown> | undefined;
+  let municipalities: Municipality[] = [];
+
+  function selectedMunicipality() {
+    return municipalities.find(([name]) => name === municipality.value);
+  }
+
+  function update() {
+    const current = selectedMunicipality();
+    const area = num(field('area').value);
+    const fiscalModule = current?.[1];
+    moduleField.value = fiscalModule === undefined ? '' : format.format(fiscalModule);
+    if (!current || !Number.isFinite(area) || !(area > 0) || fiscalModule === undefined) return render(out, null);
+
+    const count = area / fiscalModule;
+    const limit = 4 * fiscalModule;
+    const areaContext = area === limit
+      ? 'A área informada está exatamente em quatro módulos. A redação da lei e a tese para terrenos contínuos precisam ser examinadas em conjunto.'
+      : area < limit
+        ? 'A área informada está abaixo de quatro módulos fiscais.'
+        : 'A área informada está acima de quatro módulos fiscais.';
+    const family = field('familia').value;
+    const properties = field('imoveis').value;
+    const debt = field('divida').value;
+    const guarantee = field('garantia').value;
+    const familyContext = family === 'sim'
+      ? 'Você informou exploração familiar. Em execução, cabe ao executado demonstrá-la, conforme o Tema 1234 do STJ.'
+      : family === 'nao'
+        ? 'Você informou que a família não trabalha na área. A exploração familiar é um requisito a verificar.'
+        : 'A exploração familiar precisa ser verificada. Em execução, cabe ao executado comprová-la, conforme o Tema 1234 do STJ.';
+    const documents = ['Matrícula e área registral do imóvel', 'Comprovantes da exploração familiar, se houver'];
+    if (properties !== 'nao') documents.push('Matrículas de outros imóveis e identificação de terrenos contínuos, se houver');
+    if (debt !== 'nenhuma') documents.push('Contrato e documentos sobre a origem da dívida');
+    if (guarantee !== 'nenhuma') documents.push('Instrumento e registro da garantia, com eventuais notificações');
+    const guaranteeContext = guarantee === 'fiduciaria' || guarantee === ''
+      ? 'Em caso de alienação fiduciária, a 3ª Turma do STJ reconheceu a proteção contra a consolidação no REsp 2.233.886/RS diante dos requisitos daquele caso.'
+      : guarantee === 'hipoteca'
+        ? 'Se houver hipoteca, confira o instrumento de garantia e a prova da dimensão e da exploração familiar.'
+        : '';
+    const displayedCount = format.format(count);
+    const countLabel = (displayedCount === '4' && area !== limit ? (area < limit ? 'Menos de 4' : 'Mais de 4') : displayedCount) + ' módulos fiscais';
+    out.dataset.shareSummary = `Resultado do verificador da JGG: ${countLabel}, segundo os dados informados. ${areaContext}`;
+    render(out, `<small>DIMENSÃO INFORMADA</small><h2>${countLabel}</h2>
+      <p>${areaContext} O módulo local é de ${format.format(fiscalModule)} ha. A fração mínima de parcelamento publicada é de ${format.format(current[2])} ha.</p>
+      <p>A Lei 8.629/1993 usa até quatro módulos fiscais, observada a fração mínima de parcelamento. Para mais de um terreno contínuo, a tese do Tema 961 do STF usa área total inferior a quatro módulos fiscais.</p>
+      <p>${familyContext} A origem da dívida ajuda a contextualizar o caso. O REsp 1.591.298/RJ dispensou a origem produtiva para aplicar a proteção do CPC.</p>
+      ${guaranteeContext ? `<p>${guaranteeContext}</p>` : ''}
+      <strong>O que conferir nos documentos</strong><ul>${documents.map((document) => `<li>${document}</li>`).join('')}</ul>`);
+  }
+
+  uf.addEventListener('change', async () => {
+    const state = uf.value;
+    municipalities = [];
+    municipality.replaceChildren(new Option(state ? 'Carregando municípios…' : 'Selecione a UF', ''));
+    municipality.disabled = true;
+    status.textContent = '';
+    update();
+    if (!state) return;
+    try {
+      table ??= fetch('/modulos-fiscais-incra-2022-2025.json').then(async (response) => {
+        if (!response.ok) throw new Error('Tabela indisponível');
+        return response.json();
+      });
+      const data = await table;
+      if (uf.value !== state) return;
+      const rows: unknown = data && typeof data === 'object' ? Reflect.get(data, state) : undefined;
+      if (!Array.isArray(rows) || !rows.length || !rows.every(isMunicipality)) throw new Error('Tabela inválida');
+      municipalities = rows;
+      municipality.replaceChildren(new Option('Selecione', ''), ...rows.map(([name]) => new Option(name, name)));
+      municipality.disabled = false;
+    } catch {
+      table = undefined;
+      if (uf.value !== state) return;
+      status.textContent = 'Não foi possível carregar a tabela. Selecione a UF novamente ou abra a consulta oficial abaixo.';
+      municipality.replaceChildren(new Option('Indisponível', ''));
+      uf.value = '';
+    }
+  });
+  for (const name of ['municipio', 'area', 'familia', 'imoveis', 'divida', 'garantia']) {
+    field(name).addEventListener('input', update);
+  }
 </script>
+<style>
+  .tool-context { margin-block: 1rem; }
+  summary { cursor: pointer; }
+  details .calculator-grid { margin-top: 1rem; }
+  [data-incra-status]:empty { display: none; }
+</style>

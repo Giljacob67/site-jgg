@@ -1,24 +1,24 @@
 import { getRadar } from '../data/radar-content';
+
 const SITE = 'https://jgggroup.com.br';
-const built = new Date().toISOString();
 const radar = await getRadar();
-const pages: [string, string, string, string][] = [
-  ['', built, 'monthly', '1'],
-  ['/diagnostico', built, 'monthly', '0.7'],
-  ['/radar', built, 'daily', '0.7'],
-  ['/jurisprudencia', built, 'monthly', '0.7'],
-  ['/ferramentas', built, 'monthly', '0.7'],
-  ['/ferramentas/pequena-propriedade', built, 'monthly', '0.7'],
-  ['/ferramentas/arrendamento', built, 'monthly', '0.7'],
-  ['/ferramentas/credito-rural', built, 'monthly', '0.7'],
-  ['/ferramentas/checklist-credito-rural', built, 'monthly', '0.7'],
-  ['/privacidade', built, 'monthly', '0.7'],
-  ...radar.map((r): [string, string, string, string] => [`/radar/${r.slug}`, `${r.dateIso}T00:00:00.000Z`, 'weekly', '0.8']),
-];
-export const GET = () =>
-  new Response(
-    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages
-      .map(([p, m, c, pr]) => `<url>\n<loc>${SITE}${p}</loc>\n<lastmod>${m}</lastmod>\n<changefreq>${c}</changefreq>\n<priority>${pr}</priority>\n</url>`)
-      .join('\n')}\n</urlset>`,
-    { headers: { 'content-type': 'application/xml' } },
-  );
+const pages: { path: string; modified?: string }[] = [
+  '/', '/agro-alerta', '/diagnostico', '/radar', '/jurisprudencia', '/ferramentas',
+  '/ferramentas/pequena-propriedade', '/ferramentas/arrendamento',
+  '/ferramentas/credito-rural', '/ferramentas/checklist-credito-rural', '/privacidade',
+  '/guias/credito-rural-e-garantias', '/guias/arrendamento-e-posse',
+].map((path) => ({ path }));
+
+for (const article of radar) {
+  pages.push({
+    path: `/radar/${article.slug}`,
+    modified: article.kind === 'markdown' ? article.modifiedDate ?? article.dateIso : article.dateIso,
+  });
+}
+
+export const GET = () => new Response(
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages
+    .map(({ path, modified }) => `  <url><loc>${SITE}${path === '/' ? '' : path}</loc>${modified ? `<lastmod>${modified}</lastmod>` : ''}</url>`)
+    .join('\n')}\n</urlset>\n`,
+  { headers: { 'content-type': 'application/xml' } },
+);

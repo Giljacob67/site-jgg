@@ -1,9 +1,16 @@
-// Valores exibidos antes de /api/market responder (os mesmos do site original).
-export type Quote = { key: string; label: string; region: string; value: string; unit: string; variation: number | null; source: string; asOf: string };
-export const fallbackQuotes: Quote[] = [
-  { key: 'soja', label: 'Soja', region: 'PR', value: 'R$ 154,63', unit: '/ sc 60 kg', variation: 1.97, source: 'CEPEA', asOf: '20/08' },
-  { key: 'milho', label: 'Milho', region: 'Indicador', value: 'R$ 67,74', unit: '/ sc 60 kg', variation: 0.52, source: 'CEPEA', asOf: '20/08' },
-  { key: 'boi', label: 'Boi gordo', region: 'SP', value: 'R$ 345,70', unit: '/ @', variation: 0.25, source: 'CEPEA', asOf: '20/08' },
-  { key: 'cafe', label: 'Café arábica', region: 'Indicador', value: 'R$ 1.821,66', unit: '/ sc 60 kg', variation: 0.94, source: 'CEPEA', asOf: '20/08' },
+type MarketIndicator = { key: string; label: string; region: string; unit: string; source: string };
+export type Quote = MarketIndicator & { value: string; variation: number | null; asOf: string; stale?: boolean };
+
+export const marketIndicators: MarketIndicator[] = [
+  { key: 'soja', label: 'Soja', region: 'PR', unit: '/ sc 60 kg', source: 'CEPEA' },
+  { key: 'milho', label: 'Milho', region: 'Indicador', unit: '/ sc 60 kg', source: 'CEPEA' },
+  { key: 'boi', label: 'Boi gordo', region: 'SP', unit: '/ @', source: 'CEPEA' },
+  { key: 'cafe', label: 'Café arábica', region: 'Indicador', unit: '/ sc 60 kg', source: 'CEPEA' },
+  { key: 'arroz', label: 'Arroz em casca', region: 'PR · atacado', unit: '/ sc 60 kg', source: 'Deral' },
+  { key: 'feijao-carioca', label: 'Feijão carioca', region: 'PR · atacado', unit: '/ sc 60 kg', source: 'Deral' },
+  { key: 'feijao-preto', label: 'Feijão preto', region: 'PR · atacado', unit: '/ sc 60 kg', source: 'Deral' },
+  { key: 'trigo', label: 'Trigo pão', region: 'PR · atacado', unit: '/ sc 60 kg', source: 'Deral' },
+  { key: 'dolar', label: 'Dólar PTAX', region: 'BCB', unit: 'venda', source: 'Banco Central' },
 ];
+
 export const pct = (v: number) => Math.abs(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });

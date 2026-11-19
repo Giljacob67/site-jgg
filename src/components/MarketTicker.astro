@@ -1,5 +1,5 @@
 ---
-import { fallbackQuotes, pct } from '../data/market';
+import { marketIndicators } from '../data/market';
 ---
 <section class="market-bar" aria-label="Indicadores do mercado agropecuário">
   <div class="market-label">
@@ -10,12 +10,11 @@ import { fallbackQuotes, pct } from '../data/market';
   <div class="market-viewport" id="market-quotes" tabindex="0" aria-label="Cotações em rolagem horizontal" data-market-viewport>
     <div class="market-track">
       <div class="market-quotes" data-market-quotes>
-        {fallbackQuotes.map((q) => (
+        {marketIndicators.map((q) => (
           <div class="market-quote">
             <span>{q.label} <i>{q.region}</i></span>
-            <strong>{q.value} <small>{q.unit}</small></strong>
-            {q.variation !== null && <b class={q.variation >= 0 ? 'up' : 'down'}>{q.variation >= 0 ? '▲' : '▼'} {pct(q.variation)}%</b>}
-            <em>{q.source} · {q.asOf}</em>
+            <strong>Consultando cotação</strong>
+            <em>{q.source}</em>
           </div>
         ))}
       </div>
@@ -24,7 +23,7 @@ import { fallbackQuotes, pct } from '../data/market';
   <a href="/radar" class="market-info">Fontes e contexto →</a>
 </section>
 <script>
-  import { pct, type Quote } from '../data/market';
+  import { marketIndicators, pct, type Quote } from '../data/market';
 
   const viewport = document.querySelector<HTMLElement>('[data-market-viewport]');
   const quotes = viewport?.querySelector<HTMLElement>('[data-market-quotes]');
@@ -32,7 +31,7 @@ import { fallbackQuotes, pct } from '../data/market';
 
   if (viewport && quotes && control) setupTicker(viewport, quotes, control);
 
-  function renderQuote(quote: Quote) {
+  function renderQuote(quote: typeof marketIndicators[number], current?: Quote) {
     const card = document.createElement('div');
     card.className = 'market-quote';
 
@@ -44,17 +43,18 @@ import { fallbackQuotes, pct } from '../data/market';
     const price = document.createElement('strong');
     const unit = document.createElement('small');
     unit.textContent = quote.unit;
-    price.append(quote.value, ' ', unit);
+    if (current) price.append(current.value, ' ', unit);
+    else price.textContent = 'Cotação indisponível';
 
     const source = document.createElement('em');
-    source.textContent = quote.source + ' · ' + quote.asOf;
+    source.textContent = current ? `${quote.source} · ${current.asOf}${current.stale ? ' · Última confirmada' : ''}` : quote.source;
 
     card.append(title, price);
-    if (quote.variation !== null) {
+    if (current && current.variation !== null) {
       const change = document.createElement('b');
-      const rising = quote.variation >= 0;
+      const rising = current.variation >= 0;
       change.className = rising ? 'up' : 'down';
-      change.textContent = (rising ? '▲ ' : '▼ ') + pct(quote.variation) + '%';
+      change.textContent = (rising ? '▲ ' : '▼ ') + pct(current.variation) + '%';
       card.append(change);
     }
     card.append(source);
@@ -133,14 +133,16 @@ import { fallbackQuotes, pct } from '../data/market';
     size.observe(viewport);
     size.observe(quotes);
 
-    fetch('/api/market?v=2', { cache: 'no-cache' })
+    function showQuotes(data: { quotes?: Quote[] }) {
+      const byKey = new Map(data.quotes?.map((quote) => [quote.key, quote]));
+      quotes.replaceChildren(...marketIndicators.map((indicator) => renderQuote(indicator, byKey.get(indicator.key))));
+      clearCopies();
+      updateMotion();
+    }
+
+    fetch('/api/market?v=3', { cache: 'no-cache' })
       .then((response) => response.json())
-      .then((data: { quotes?: Quote[] }) => {
-        if (!data.quotes?.length) return;
-        quotes.replaceChildren(...data.quotes.map(renderQuote));
-        clearCopies();
-        updateMotion();
-      })
-      .catch(() => undefined);
+      .then(showQuotes)
+      .catch(() => showQuotes({}));
   }
 </script>

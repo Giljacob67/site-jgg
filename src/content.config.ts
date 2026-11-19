@@ -13,6 +13,14 @@ const radar = defineCollection({
     status: z.enum(['draft', 'approved']).default('draft'),
     level: z.string().trim().min(1).default('Análise'),
     source: z.string().trim().min(1).default('Análise JGG'),
+    author: z.enum(['gilberto-jacob']).optional(),
+    technicalLead: z.enum(['gilberto-jacob']).optional(),
+    image: z.string().regex(/^\/compartilhar\/[a-z0-9-]+\.jpg$/).optional(),
+    modifiedDate: z.iso.date().optional(),
+    video: z.object({
+      file: z.string().regex(/^\/videos\/[a-z0-9-]+\.mp4$/),
+      captions: z.string().regex(/^\/videos\/[a-z0-9-]+\.vtt$/),
+    }).optional(),
     tool: z.enum(['arrendamento', 'credito-rural', 'pequena-propriedade', 'checklist-credito-rural']).optional(),
     sources: z.array(z.object({
       label: z.string().trim().min(1),

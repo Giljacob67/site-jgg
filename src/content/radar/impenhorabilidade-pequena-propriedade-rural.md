@@ -5,6 +5,8 @@ category: Terra
 dateIso: "2026-11-19"
 status: approved
 tool: pequena-propriedade
+technicalLead: gilberto-jacob
+image: /compartilhar/pequena-propriedade-rural.jpg
 sources:
   - label: "Constituição Federal, art. 5º, inciso XXVI"
     url: "https://www2.camara.leg.br/legin/fed/consti/1988/constituicao-1988-5-outubro-1988-322142-normaatualizada-pl.html"

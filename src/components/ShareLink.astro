@@ -1,0 +1,42 @@
+---
+import { PREVIEW, SITE } from '../layouts/Base.astro';
+
+interface Props {
+  path: string;
+  label?: string;
+}
+
+const { path, label = 'Compartilhar no WhatsApp' } = Astro.props;
+const link = new URL(path, import.meta.env.MODE === 'preview' ? PREVIEW : SITE);
+link.search = new URLSearchParams({ utm_source: 'whatsapp', utm_medium: 'share' }).toString();
+---
+<a class="agro-text-link" href={`https://wa.me/?text=${encodeURIComponent(link.href)}`} target="_blank" rel="noopener noreferrer">{label} ↗</a>
+
+<button class="share-copy agro-text-link" type="button" data-share-copy={link.origin + link.pathname} hidden>Copiar link</button>
+<script>
+  if (navigator.clipboard) {
+    for (const button of document.querySelectorAll<HTMLButtonElement>('[data-share-copy]')) {
+      button.hidden = false;
+      button.addEventListener('click', async () => {
+        const url = button.dataset.shareCopy;
+        if (!url) return;
+        try {
+          await navigator.clipboard.writeText(url);
+          button.textContent = 'Link copiado';
+        } catch {
+          button.textContent = 'Não foi possível copiar';
+        }
+      });
+    }
+  }
+</script>
+<style>
+  .share-copy {
+    margin-inline: .6rem;
+    padding: .25rem 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+  }
+</style>

@@ -6,15 +6,38 @@ import MarketTicker from '../components/MarketTicker.astro';
 import ContactForm from '../components/ContactForm.astro';
 import { getRadar } from '../data/radar-content';
 import { cases } from '../data/jurisprudencia';
+import { currentAlert as alert } from '../data/agro-alerta';
 
-const congress = 'https://www.congressonacional.leg.br/materias/medidas-provisorias/-/mpv/175190';
-const senate = 'https://www12.senado.leg.br/noticias/materias/2026/11/11/renegociacao-de-dividas-rurais-e-aprovada-pelo-senado-e-vai-a-sancao-presidencial';
 const latest = (await getRadar({ includePreview: import.meta.env.MODE === 'preview' })).slice(0, 3);
-const areas = [
-  ['Direito Agrário', 'Atuação nas relações jurídicas vinculadas à produção rural, à exploração da terra e aos instrumentos específicos do agronegócio.'],
-  ['Imobiliário rural', 'Propriedade, posse, documentação de imóveis rurais, regularização fundiária e registros.'],
-  ['Ambiental e regulatório', 'CAR, regularização ambiental, licenciamento, autuações e regras aplicáveis à produção rural.'],
-  ['Contencioso estratégico', 'Controvérsias administrativas e judiciais envolvendo contratos, crédito, propriedade e garantias.'],
+const situations = [
+  {
+    area: 'Crédito rural e dívida bancária',
+    question: 'Tenho parcelas em atraso ou recebi uma cobrança judicial',
+    text: 'Organize contratos, encargos e garantias da operação antes de comparar alternativas.',
+    href: '/guias/credito-rural-e-garantias',
+    link: 'Consultar o guia de crédito rural',
+  },
+  {
+    area: 'Garantias e patrimônio rural',
+    question: 'Recebi uma notificação sobre a garantia da fazenda',
+    text: 'Entenda o que muda conforme o tipo de garantia e confira a área em módulos fiscais.',
+    href: '/ferramentas/pequena-propriedade',
+    link: 'Verificar a área do imóvel',
+  },
+  {
+    area: 'Sucessão e patrimônio rural',
+    question: 'Quero organizar a sucessão da família',
+    text: 'Veja quais informações reunir sobre imóveis, contratos e governança antes de avaliar uma holding.',
+    href: '/radar/holding-rural-planejamento-sucessorio',
+    link: 'Ler sobre sucessão e holding',
+  },
+  {
+    area: 'Contratos e imóveis rurais',
+    question: 'Tenho um conflito de arrendamento ou posse',
+    text: 'Reúna os documentos da terra e confira os pontos do contrato que precisam de atenção.',
+    href: '/guias/arrendamento-e-posse',
+    link: 'Consultar o guia de arrendamento e posse',
+  },
 ];
 const tools = [
   ['Contratos rurais', 'Arrendamento, prazo, aviso e garantias contratuais.', '/ferramentas/arrendamento'],
@@ -41,15 +64,32 @@ const tools = [
     <section class="agro-wrap agro-hero" aria-labelledby="hero-title">
       <p class="agro-kicker">Advocacia especializada · Direito Agrário · PR e MT</p>
       <h1 id="hero-title">O campo move o Brasil.<br /><em>O direito protege</em><br /> quem faz acontecer.</h1>
-      <p>Estratégia jurídica para quem produz, investe e constrói o futuro do agronegócio.</p>
+      <p>Crédito rural, garantias, sucessão e contratos para quem produz e investe no campo.</p>
       <div class="agro-actions">
-        <a class="agro-button" href="#agro-alerta">Acompanhe o Agro Alerta <span aria-hidden="true">↗</span></a>
-        <a class="agro-button agro-button-outline" href="#solucoes">Conheça nossa atuação</a>
+        <a class="agro-button" href="#solucoes">Encontre orientação para sua situação</a>
+        <a class="agro-button agro-button-outline" href="/agro-alerta">Acompanhe o Agro Alerta <span aria-hidden="true">↗</span></a>
       </div>
     </section>
   </div>
 
   <main id="conteudo">
+    <section class="agro-wrap agro-section agro-divider" id="solucoes" aria-labelledby="practice-title">
+      <div class="agro-heading">
+        <div><p class="agro-kicker">Áreas de atuação</p><h2 id="practice-title">O que você precisa<br /><em>organizar no campo?</em></h2></div>
+        <p>Encontre informações sobre crédito, garantias, sucessão e contratos rurais.</p>
+      </div>
+      <div class="agro-grid agro-practice-grid">
+        {situations.map(({ area, question, text, href, link }) => (
+          <article class="agro-card">
+            <p class="agro-kicker">{area}</p>
+            <h3>{question}</h3><p>{text}</p>
+            <a class="agro-text-link" href={href}>{link} <span aria-hidden="true">→</span></a>
+          </article>
+        ))}
+      </div>
+      <p class="practice-related"><a class="agro-text-link" href="/radar/regularidade-ambiental-credito-rural">Consultar conteúdo ambiental e regulatório →</a></p>
+    </section>
+
     <section class="agro-wrap agro-alert" id="agro-alerta" aria-labelledby="alert-title">
       <div class="agro-alert-heading">
         <p class="agro-kicker">JGG Agro Alerta</p>
@@ -57,12 +97,12 @@ const tools = [
         <p>Notícias, legislação e julgamentos relevantes, com análises sobre seus impactos para quem produz.</p>
       </div>
       <article class="agro-news">
-        <div class="agro-meta"><span>Renegociação de dívidas rurais</span><time datetime="2026-11-11">11 nov 2026</time></div>
-        <h3>Senado aprova projeto sobre renegociação de dívidas rurais</h3>
-        <p>O projeto de conversão da MP 1.376/2026 trata de linhas de crédito para produtores afetados por eventos climáticos. As mudanças aprovadas incluem a ampliação do público que pode ser atendido.</p>
-        <p><strong>Situação em 18/11/2026:</strong> enviado à sanção presidencial, segundo o Congresso Nacional.</p>
-        <a class="agro-button" href={senate}>Entenda o que muda <span aria-hidden="true">↗</span></a>
-        <p class="agro-source">Fonte oficial: <a href={congress}>tramitação no Congresso Nacional</a>.</p>
+        <div class="agro-meta"><span>{alert.topic}</span><time datetime={alert.date}>{alert.dateLabel}</time></div>
+        <h3>{alert.title}</h3>
+        <p>{alert.description}</p>
+        <p><strong>Situação em {alert.checkedLabel}</strong> · {alert.status}</p>
+        <a class="agro-button" href="/agro-alerta">Ler o Agro Alerta <span aria-hidden="true">↗</span></a>
+        <p class="agro-source">Fonte oficial: <a href={alert.source}>tramitação no Congresso Nacional</a>.</p>
       </article>
       <div class="agro-alert-grid">
         <article class="agro-alert-card">
@@ -73,7 +113,7 @@ const tools = [
         <article class="agro-alert-card">
           <h3>Mudanças na legislação</h3>
           <p>Novas regras e seus possíveis efeitos na atividade rural.</p>
-          <a href={congress}>Acompanhe a tramitação <span aria-hidden="true">↗</span></a>
+          <a href={alert.source}>Acompanhe a tramitação <span aria-hidden="true">↗</span></a>
         </article>
       </div>
     </section>
@@ -94,16 +134,6 @@ const tools = [
         ))}
       </div>
       <a class="agro-text-link" href="/radar">Ver o acervo do Agro Radar <span aria-hidden="true">→</span></a>
-    </section>
-
-    <section class="agro-wrap agro-section agro-divider" id="solucoes" aria-labelledby="practice-title">
-      <div class="agro-heading">
-        <div><p class="agro-kicker">Áreas de atuação</p><h2 id="practice-title">Direito do campo,<br /><em>por inteiro.</em></h2></div>
-        <p>Atuação jurídica dedicada às relações, aos ativos e aos desafios do agronegócio.</p>
-      </div>
-      <div class="agro-grid agro-practice-grid">
-        {areas.map(([title, text]) => <article class="agro-card"><h3>{title}</h3><p>{text}</p></article>)}
-      </div>
     </section>
 
     <section class="agro-tools" id="ferramentas" aria-labelledby="tools-title">
@@ -142,7 +172,7 @@ const tools = [
           <p>Atuação integrada em Direito Agrário, Bancário, Tributário e Patrimonial, com presença no Paraná e em Mato Grosso.</p>
         </div>
         <ul class="agro-grid agro-people">
-          <li><strong>Gilberto Jacob</strong><span>Sócio fundador · OAB/PR 17.158</span></li>
+          <li id="gilberto-jacob"><strong>Gilberto Jacob</strong><span>Sócio fundador · OAB/PR 17.158</span></li>
           <li><strong>Felipe Ricardo Greczyszn</strong><span>Sócio fundador · OAB/PR 136.387</span></li>
           <li><strong>Reginaldo Greczyszn</strong><span>Sócio residente · Mato Grosso</span></li>
         </ul>
@@ -168,7 +198,7 @@ const tools = [
     <div class="agro-wrap agro-footer-main">
       <a href="/" aria-label="JGG Group — início"><Logo /></a>
       <p>Estratégia jurídica para quem move o agronegócio.<br />Paraná · Mato Grosso</p>
-      <nav aria-label="Rodapé"><a href="/radar">Agro Radar</a><a href="/ferramentas">Ferramentas</a><a href="/diagnostico">Diagnóstico</a><a href="https://www.linkedin.com/company/jgggroup">LinkedIn</a></nav>
+      <nav aria-label="Rodapé"><a href="/radar">Agro Radar</a><a href="/ferramentas">Ferramentas</a><a href="/diagnostico">Diagnóstico</a><a href="https://www.linkedin.com/company/jgggroup">LinkedIn</a><a href="https://www.instagram.com/jgggroup/">Instagram</a></nav>
     </div>
     <div class="agro-wrap agro-footer-bottom"><span>© JGG Group · OAB/PR 17.158</span><a href="/privacidade">Política de Privacidade</a></div>
   </footer>

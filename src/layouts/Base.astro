@@ -12,6 +12,7 @@ import serifItalic from '@fontsource/instrument-serif/files/instrument-serif-lat
 import sans from '@fontsource/dm-sans/files/dm-sans-latin-400-normal.woff2?url';
 
 export const SITE = 'https://jgggroup.com.br';
+export const PREVIEW = 'https://site-jgg-agro-premium.jgggroup.workers.dev';
 
 interface Props {
   title: string;
@@ -19,7 +20,7 @@ interface Props {
   /** Caminho canônico, como "/radar". Omitido em páginas de erro. */
   path?: string;
   noindex?: boolean;
-  og?: { title?: string; description?: string; type?: 'website' | 'article'; publishedTime?: string };
+  og?: { title?: string; description?: string; type?: 'website' | 'article'; publishedTime?: string; image?: string };
   jsonLd?: Record<string, unknown>[];
   preload?: string[];
 }
@@ -27,7 +28,8 @@ interface Props {
 const { title, description, path, noindex = false, og = {}, jsonLd = [], preload = ['/jgg-logo-horizontal.svg'] } = Astro.props;
 const canonical = path === undefined ? undefined : path === '/' ? SITE : SITE + path;
 const ogType = og.type ?? 'website';
-const ogUrl = og.type === 'article' && canonical ? canonical : SITE;
+const ogUrl = canonical ?? SITE;
+const ogImage = new URL(og.image ?? '/og.png', import.meta.env.MODE === 'preview' ? PREVIEW : SITE).href;
 
 const legalService = {
   '@context': 'https://schema.org',
@@ -55,20 +57,20 @@ const legalService = {
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex" />}
     {canonical && <link rel="canonical" href={canonical} />}
-    <meta property="og:title" content={og.title ?? 'JGG Group — Agro Radar'} />
-    <meta property="og:description" content={og.description ?? 'Inteligência jurídica para decisões no campo.'} />
+    <meta property="og:title" content={og.title ?? title} />
+    <meta property="og:description" content={og.description ?? description} />
     <meta property="og:url" content={ogUrl} />
     <meta property="og:site_name" content="JGG Group" />
     <meta property="og:type" content={ogType} />
     {og.publishedTime && <meta property="article:published_time" content={og.publishedTime} />}
     <meta property="og:locale" content="pt_BR" />
-    <meta property="og:image" content={`${SITE}/og.png`} />
+    <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="JGG Group — Agro Radar" />
-    <meta name="twitter:description" content="Inteligência jurídica para decisões no campo." />
-    <meta name="twitter:image" content={`${SITE}/og.png`} />
+    <meta name="twitter:title" content={og.title ?? title} />
+    <meta name="twitter:description" content={og.description ?? description} />
+    <meta name="twitter:image" content={ogImage} />
     <meta name="theme-color" content="#17382c" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap.xml" />

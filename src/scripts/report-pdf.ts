@@ -16,7 +16,7 @@ function lines(text: string, max = 82) {
   }, []);
 }
 
-export async function buildReport(r: { name: string; label: string; score: number; answers: string[] }) {
+export async function buildReport(r: { label: string; score: number; answers: string[] }) {
   const pdf = await PDFDocument.create();
   pdf.setTitle('Panorama informativo — JGG Group');
   const regular = await pdf.embedFont(StandardFonts.Helvetica);
@@ -28,7 +28,6 @@ export async function buildReport(r: { name: string; label: string; score: numbe
   page.drawText('Diagnóstico inicial da operação rural', { x: 44, y: 738, size: 11, font: regular, color: rgb(0.76, 0.83, 0.8) });
 
   let y = 682;
-  page.drawText(`Responsável pelas respostas: ${r.name}`, { x: 44, y, size: 10, font: regular, color: muted });
   page.drawText(`Gerado em ${new Date().toLocaleDateString('pt-BR')}`, { x: 410, y, size: 9, font: regular, color: muted });
   y -= 48;
   page.drawText('INDICADOR INICIAL', { x: 44, y, size: 9, font: bold, color: copper });

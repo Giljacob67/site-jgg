@@ -1,6 +1,7 @@
 ---
 import Base, { SITE } from '../../layouts/Base.astro';
 import SubHeader from '../../components/SubHeader.astro';
+import ShareLink from '../../components/ShareLink.astro';
 import { render } from 'astro:content';
 import { getRadar } from '../../data/radar-content';
 
@@ -13,19 +14,32 @@ const markdown = item.kind === 'markdown' ? item : undefined;
 const Content = markdown ? (await render(markdown.entry)).Content : undefined;
 const notice = markdown?.notice ?? 'Conteúdo geral e informativo. Não constitui consulta, parecer ou recomendação jurídica para um caso concreto.';
 const path = `/radar/${item.slug}`;
+const gilberto = { name: 'Gilberto Jacob', oab: 'OAB/PR 17.158', path: '/#gilberto-jacob' };
+const professional = markdown?.author === 'gilberto-jacob' ? { role: 'Autoria', ...gilberto }
+  : markdown?.technicalLead === 'gilberto-jacob' ? { role: 'Responsável técnico', ...gilberto }
+  : undefined;
+const relatedTools = new Map([
+  ['renegociacao-credito-rural-garantias', 'credito-rural'],
+  ['regularidade-ambiental-credito-rural', 'checklist-credito-rural'],
+  ['arrendamento-rural-clausulas-essenciais', 'arrendamento'],
+]);
+const relatedTool = markdown?.tool ?? relatedTools.get(item.slug);
 const article = {
   '@context': 'https://schema.org',
   '@type': 'Article',
   headline: item.title,
   description: item.summary,
   datePublished: item.dateIso,
-  dateModified: item.dateIso,
+  dateModified: markdown?.modifiedDate ?? item.dateIso,
   mainEntityOfPage: SITE + path,
-  author: { '@type': 'Organization', name: 'JGG Group' },
+  author: markdown?.author === 'gilberto-jacob'
+    ? { '@type': 'Person', name: gilberto.name, url: SITE + gilberto.path }
+    : { '@type': 'Organization', name: 'JGG Group', url: SITE },
+  image: new URL(markdown?.image ?? '/og.png', SITE).href,
   publisher: { '@type': 'Organization', name: 'JGG Group' },
 };
 ---
-<Base title={`${item.title} | JGG Group`} description={item.summary} path={item.published ? path : undefined} noindex={!item.published} og={{ title: item.title, description: item.summary, type: 'article', publishedTime: item.published ? item.dateIso : undefined }} jsonLd={item.published ? [article] : []}>
+<Base title={`${item.title} | JGG Group`} description={item.summary} path={item.published ? path : undefined} noindex={!item.published} og={{ title: item.title, description: item.summary, type: 'article', image: markdown?.image, publishedTime: item.published ? item.dateIso : undefined }} jsonLd={item.published ? [article] : []}>
 <main class="subpage">
 <SubHeader cta="Avaliar meu cenário" href="/diagnostico" />
 <article class:list={['article-page', 'shell', { 'article-page-markdown': markdown }]}>
@@ -33,7 +47,14 @@ const article = {
   <span class="tag">{item.category}</span>
   <p class="article-date">{!item.published && 'Prévia editorial · data prevista: '}<time datetime={item.dateIso}>{item.date}</time> · {item.source}</p>
   <h1>{item.title}</h1>
+  {professional && <p class="article-byline">{professional.role} · <a href={professional.path}>{professional.name}</a> · {professional.oab}</p>}
+  {markdown?.modifiedDate && <p class="article-date">Atualizado em <time datetime={markdown.modifiedDate}>{new Date(markdown.modifiedDate + 'T12:00:00Z').toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</time></p>}
   <p class="article-deck">{item.summary}</p>
+  {item.published && <div class="article-share"><ShareLink path={path} /></div>}
+  {markdown?.video && <video controls playsinline preload="none" aria-label={`Vídeo: ${item.title}`}>
+    <source src={markdown.video.file} type="video/mp4" />
+    <track kind="captions" srclang="pt-BR" label="Português" src={markdown.video.captions} default />
+  </video>}
   {Content && <div class="radar-markdown"><Content /></div>}
   {item.kind === 'legacy' && item.sections.map((s) => <section><h2>{s.heading}</h2>{s.paragraphs.map((p) => <p>{p}</p>)}</section>)}
   <aside class="article-sources">
@@ -42,8 +63,8 @@ const article = {
   </aside>
   <div class="article-disclaimer">{notice}</div>
   <div class="radar-actions">
-    {markdown?.tool && <a href={`/ferramentas/${markdown.tool}`} class="button copper">Abrir ferramenta relacionada →</a>}
-    <a href="/diagnostico" class={markdown?.tool ? 'agro-text-link' : 'button copper'}>Organizar meu cenário →</a>
+    {relatedTool && <a href={`/ferramentas/${relatedTool}`} class="button copper">Abrir ferramenta relacionada →</a>}
+    <a href="/diagnostico" class={relatedTool ? 'agro-text-link' : 'button copper'}>Organizar meu cenário →</a>
   </div>
 </article>
 </main>
@@ -55,5 +76,8 @@ const article = {
   .radar-markdown :global(blockquote) { border-inline-start: 3px solid var(--copper); margin-inline: 0; padding-inline-start: 1rem; }
   .radar-markdown :global(code) { overflow-wrap: anywhere; }
   .article-disclaimer { white-space: pre-line; }
+  .article-byline { font-size: .9rem; margin-block: .5rem; }
+  .article-share { margin-bottom: 1.5rem; }
+  video { display: block; width: min(100%, 44rem); margin-block: 1.5rem; }
   .radar-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
 </style>

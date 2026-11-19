@@ -1,11 +1,13 @@
 ---
 import Base from '../../layouts/Base.astro';
 import ToolPage from '../../components/ToolPage.astro';
+import ToolActions from '../../components/ToolActions.astro';
 ---
 <Base title="Simulador de arrendamento rural | JGG Group" description="Compare a remuneração anual do arrendamento com parâmetros regulamentares." path="/ferramentas/arrendamento">
 <ToolPage title="Parâmetros do arrendamento rural" intro="Compare a remuneração anual informada com o valor da terra usado no contrato. Confirme qual base de cálculo e qual hipótese regulamentar se aplicam." disclaimer="O resultado é apenas uma comparação numérica. Não declara validade, nulidade ou irregularidade contratual.">
 <div class="calculator-grid"><label>Valor da terra ou base contratual (R$)<input name="base" inputmode="decimal" placeholder="Ex.: 1.000.000" /></label><label>Remuneração anual do arrendamento (R$)<input name="renda" inputmode="decimal" placeholder="Ex.: 120.000" /></label><label>Hipótese para comparação<select name="hipotese"><option value="total" selected>Arrendamento da área total — referência de 15%</option><option value="partial">Arrendamento parcial em hipótese especial — referência de 30%</option></select></label></div>
 <div data-out hidden aria-live="polite"></div>
+<ToolActions title="Parâmetros do arrendamento rural" path="/ferramentas/arrendamento" disclaimer="Resultado informativo. A comparação numérica não declara a validade ou irregularidade do contrato." />
 <div class="calc-sources"><b>Fonte oficial</b><a href="https://www.planalto.gov.br/ccivil_03/decreto/antigos/d59566.htm" target="_blank" rel="noreferrer">Decreto nº 59.566/1966, art. 17 — Planalto ↗</a></div>
 </ToolPage>
 </Base>
@@ -17,6 +19,8 @@ import ToolPage from '../../components/ToolPage.astro';
     if (!(base > 0 && renda >= 0) || field('renda').value === '') return render(out, null);
     const limit = field('hipotese').value === 'total' ? 0.15 : 0.3;
     const percent = (renda / base) * 100;
+    if (!Number.isFinite(percent)) return render(out, null);
+    out.dataset.shareSummary = `Comparei a remuneração anual do arrendamento (${percent.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}%) com a referência de ${limit * 100}% selecionada na ferramenta da JGG.`;
     render(out,
       `<small>COMPARAÇÃO MATEMÁTICA</small><h2>${percent.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}% ao ano</h2><p>Na base informada, a referência de ${limit * 100}% corresponde a ${brl(base * limit)} por ano.</p><strong>A classificação do contrato, a base correta, as benfeitorias e a hipótese de 30% precisam ser verificadas nos documentos.</strong>`,
       percent <= limit * 100 ? 'positive' : 'attention');

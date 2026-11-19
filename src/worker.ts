@@ -3,7 +3,7 @@
 //   POST /api/leads   → envia o contato da triagem por e-mail (Resend) e, se configurado, a um webhook
 // Nenhum dado pessoal é gravado aqui.
 
-import type { Quote } from './data/market';
+import { marketIndicators, type Quote } from './data/market';
 
 interface Env {
   ASSETS: Fetcher;
@@ -104,7 +104,7 @@ async function cepea(def: (typeof CEPEA)[number]): Promise<Quote | null> {
     const titles = [...text.matchAll(/INDICADOR D[OA] [^/]*?(?:CEPEA\/ESALQ|ESALQ\/BM&(?:amp;)?FBOVESPA)(?: - [A-ZÀ-Ú]+)?/g)];
     const hit = titles.find((m) => m[0].includes(def.table));
     if (!hit) return null;
-    const row = text.slice(hit.index!, hit.index! + 400).match(/(\d{2}\/\d{2})\/\d{4} ([\d.]+,\d{2}) (-?[\d.]+,\d{2})%/);
+    const row = text.slice(hit.index!, hit.index! + 400).match(/(\d{2}\/\d{2}\/\d{4}) ([\d.]+,\d{2}) (-?[\d.]+,\d{2})%/);
     if (!row) return null;
     return { key: def.key, label: def.label, region: def.region, value: `R$ ${row[2]}`, unit: def.unit, variation: brNum(row[3]), source: 'CEPEA', asOf: row[1] };
   } catch {
@@ -123,12 +123,12 @@ async function ptax(): Promise<Quote | null> {
     if (!rows.length) return null;
     const latest = rows[0], day = latest.dataHoraCotacao.slice(0, 10);
     const prev = rows.find((r) => r.dataHoraCotacao.slice(0, 10) !== day);
-    const [y, m, dd] = day.split('-');
+    const [year, m, dd] = day.split('-');
     return {
       key: 'dolar', label: 'Dólar PTAX', region: 'BCB',
       value: `R$ ${latest.cotacaoVenda.toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}`,
       unit: 'venda', variation: prev ? (latest.cotacaoVenda / prev.cotacaoVenda - 1) * 100 : null,
-      source: 'Banco Central', asOf: `${dd}/${m}`,
+      source: 'Banco Central', asOf: `${dd}/${m}/${year}`,
     };
   } catch {
     return null;
@@ -172,16 +172,34 @@ async function deral(): Promise<Quote[]> {
 
 async function market(request: Request, ctx: ExecutionContext) {
   const cache = caches.default;
-  const key = new Request(new URL('/api/market?v=2', request.url).toString());
+  const key = new Request(new URL('/api/market?v=3', request.url).toString());
   const hit = await cache.match(key);
   if (hit) return hit;
   const [cepeaQuotes, dollar, deralQuotes] = await Promise.all([Promise.all(CEPEA.map(cepea)), ptax(), deral()]);
-  const quotes = [...cepeaQuotes.filter((q): q is Quote => q !== null), ...deralQuotes, ...(dollar ? [dollar] : [])];
+  const live = [...cepeaQuotes.filter((q): q is Quote => q !== null), ...deralQuotes, ...(dollar ? [dollar] : [])];
+  const snapshots = await Promise.all(marketIndicators.map(async ({ key: indicator }) => {
+    const storageKey = new Request(new URL(`/api/market?last-confirmed=${indicator}`, request.url));
+    const quote = live.find((candidate) => candidate.key === indicator);
+    if (quote) {
+      ctx.waitUntil(cache.put(storageKey, Response.json(quote, {
+        headers: { 'cache-control': 'public, max-age=604800' },
+      })).catch(() => undefined));
+      return quote;
+    }
+    const previous = await cache.match(storageKey).catch(() => undefined);
+    if (previous) {
+      const last = await previous.json<Quote>();
+      return { ...last, stale: true };
+    }
+    return null;
+  }));
+  const quotes = snapshots.filter((quote): quote is Quote => quote !== null);
+  const ttl = live.length === marketIndicators.length ? 1800 : 120;
   const res = Response.json(
     { quotes, updatedAt: new Date().toISOString() },
-    { headers: { 'cache-control': quotes.length ? 'public, max-age=900, s-maxage=1800' : 'no-store' } },
+    { headers: { 'cache-control': quotes.length ? `public, max-age=${Math.min(ttl, 900)}, s-maxage=${ttl}` : 'no-store' } },
   );
-  if (quotes.length) ctx.waitUntil(cache.put(key, res.clone()));
+  if (quotes.length) ctx.waitUntil(cache.put(key, res.clone()).catch(() => undefined));
   return res;
 }
 

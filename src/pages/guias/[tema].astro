@@ -1,0 +1,55 @@
+---
+import Base from '../../layouts/Base.astro';
+import SubHeader from '../../components/SubHeader.astro';
+import ShareLink from '../../components/ShareLink.astro';
+
+export function getStaticPaths() {
+  const guides = [
+    {
+      slug: 'credito-rural-e-garantias',
+      title: 'Crédito rural, dívida bancária e garantias',
+      description: 'Organize contratos, encargos e garantias para entender melhor a operação e reunir os documentos pertinentes.',
+      links: [
+        ['Checklist de documentos do crédito rural', '/ferramentas/checklist-credito-rural'],
+        ['Comparar encargos de crédito rural', '/ferramentas/credito-rural'],
+        ['O que conferir antes de renegociar', '/radar/renegociacao-credito-rural-garantias'],
+        ['Pequena propriedade e garantias', '/radar/impenhorabilidade-pequena-propriedade-rural'],
+        ['Alongamento de dívidas e decisões do STJ', '/jurisprudencia'],
+        ['Organizar informações na triagem', '/diagnostico'],
+      ],
+    },
+    {
+      slug: 'arrendamento-e-posse',
+      title: 'Arrendamento rural e posse',
+      description: 'Consulte materiais para organizar o contrato, a documentação da terra e as dúvidas sobre a ocupação do imóvel.',
+      links: [
+        ['Cláusulas de arrendamento a conferir', '/radar/arrendamento-rural-clausulas-essenciais'],
+        ['Comparar parâmetros do arrendamento', '/ferramentas/arrendamento'],
+        ['Matrícula, georreferenciamento e CAR', '/radar/matricula-georreferenciamento-car'],
+        ['Decisões do STJ sobre arrendamento e perda da propriedade', '/jurisprudencia'],
+      ],
+    },
+  ];
+  return guides.map((guide) => ({ params: { tema: guide.slug }, props: { guide } }));
+}
+
+const { guide } = Astro.props;
+const path = `/guias/${guide.slug}`;
+---
+<Base title={`${guide.title} | JGG Group`} description={guide.description} path={path}>
+  <main class="subpage">
+    <SubHeader />
+    <article class="article-page shell">
+      <a class="back-link" href="/#solucoes">← Voltar às áreas de atuação</a>
+      <h1>{guide.title}</h1>
+      <p class="article-deck">{guide.description}</p>
+      <h2>Ferramentas e leituras</h2>
+      <ul>{guide.links.map(([label, href]) => <li><a class="agro-text-link" href={href}>{label} →</a></li>)}</ul>
+      <p class="article-disclaimer">Conteúdo informativo. Cada situação exige análise dos documentos e das circunstâncias do caso.</p>
+      <ShareLink path={path} />
+    </article>
+  </main>
+</Base>
+<style>
+  li { margin-block: .9rem; }
+</style>

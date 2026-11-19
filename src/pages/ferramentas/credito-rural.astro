@@ -1,11 +1,13 @@
 ---
 import Base from '../../layouts/Base.astro';
 import ToolPage from '../../components/ToolPage.astro';
+import ToolActions from '../../components/ToolActions.astro';
 ---
 <Base title="Comparador de encargos do crédito rural | JGG Group" description="Compare taxas anuais informadas e estime o impacto financeiro no prazo da operação." path="/ferramentas/credito-rural">
 <ToolPage title="Comparador de encargos do crédito rural" intro="Estime o efeito de duas taxas anuais sobre o mesmo principal e prazo. Use a taxa de referência correta para a finalidade, fonte e período da operação." disclaimer="Diferença matemática não significa abusividade. A conclusão depende do programa, fonte de recursos, finalidade, data, contrato e normas vigentes.">
 <div class="calculator-grid"><label>Principal da operação (R$)<input name="principal" inputmode="decimal" placeholder="Ex.: 500.000" /></label><label>Taxa contratada (% ao ano)<input name="taxa" inputmode="decimal" placeholder="Ex.: 18" /></label><label>Taxa de referência (% ao ano)<input name="ref" inputmode="decimal" placeholder="Consulte o MCR" /></label><label>Prazo comparado (meses)<input name="meses" inputmode="numeric" value="12" /></label></div>
 <div data-out hidden aria-live="polite"></div>
+<ToolActions title="Comparador de encargos do crédito rural" path="/ferramentas/credito-rural" disclaimer="Resultado informativo. A diferença estimada não indica abusividade e não inclui o custo total da operação." />
 <div class="calc-sources"><b>Fonte oficial para consulta</b><a href="https://www3.bcb.gov.br/mcr" target="_blank" rel="noreferrer">Manual de Crédito Rural — Banco Central ↗</a></div>
 </ToolPage>
 </Base>
@@ -17,6 +19,9 @@ import ToolPage from '../../components/ToolPage.astro';
     if (!(p > 0 && t >= 0 && r >= 0 && m > 0) || field('taxa').value === '' || field('ref').value === '') return render(out, null);
     const f = (rate: number) => p * (1 + rate / 100) ** (m / 12);
     const tc = f(t), tr = f(r), diff = tc - tr;
+    if (![tc, tr, diff].every(Number.isFinite)) return render(out, null);
+    const rate = (value: number) => value.toLocaleString('pt-BR', { maximumFractionDigits: 4 });
+    out.dataset.shareSummary = `Comparação de crédito rural da JGG: ${rate(t)}% ao ano na taxa contratada e ${rate(r)}% ao ano na referência, em ${m} meses.`;
     render(out,
       `<small>ESTIMATIVA COM CAPITALIZAÇÃO ANUAL EQUIVALENTE</small><h2>Diferença: ${brl(diff)}</h2><p>Montante estimado na taxa contratada: ${brl(tc)}. Na taxa de referência: ${brl(tr)}.</p><strong>O cálculo não inclui tarifas, seguros, mora, periodicidade real da capitalização, pagamentos intermediários ou subsídios.</strong>`,
       diff <= 0 ? 'positive' : 'attention');

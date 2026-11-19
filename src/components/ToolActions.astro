@@ -1,0 +1,54 @@
+---
+import ShareLink from './ShareLink.astro';
+
+interface Props { title: string; path: string; disclaimer: string }
+const { title, path, disclaimer } = Astro.props;
+const contact = new URL('https://wa.me/5544988335397');
+const message = `Olá! Usei a ferramenta da JGG “${title}” e gostaria de falar com a equipe.`;
+contact.searchParams.set('text', message);
+---
+<div class="tool-actions" hidden data-tool-actions data-message={message} data-disclaimer={disclaimer}>
+  <p class="calc-disclaimer">{disclaimer}</p>
+  <div class="tool-action-links">
+    <a class="button copper" href={contact.href} target="_blank" rel="noopener noreferrer">Falar com a JGG pelo WhatsApp ↗</a>
+    <ShareLink path={path} label="Compartilhar ferramenta" />
+  </div>
+  <details data-summary>
+    <summary>Ver e compartilhar meu resumo</summary>
+    <label>Resumo que será compartilhado<textarea readonly rows="4" data-summary-text></textarea></label>
+    <div class="tool-action-links">
+      <a class="agro-text-link" data-summary-contact target="_blank" rel="noopener noreferrer">Enviar resumo à JGG ↗</a>
+      <a class="agro-text-link" data-summary-share target="_blank" rel="noopener noreferrer">Compartilhar resumo no WhatsApp ↗</a>
+    </div>
+  </details>
+</div>
+<script>
+  const actions = document.querySelector('[data-tool-actions]');
+  const result = document.querySelector('[data-out]');
+  const details = actions?.querySelector('[data-summary]');
+  const preview = actions?.querySelector('[data-summary-text]');
+  const contact = actions?.querySelector('[data-summary-contact]');
+  const share = actions?.querySelector('[data-summary-share]');
+
+  if (actions instanceof HTMLElement && result instanceof HTMLElement && details instanceof HTMLDetailsElement &&
+      preview instanceof HTMLTextAreaElement && contact instanceof HTMLAnchorElement && share instanceof HTMLAnchorElement) {
+    const update = () => {
+      actions.hidden = result.hidden;
+      if (result.hidden) details.open = false;
+      const summary = [result.dataset.shareSummary, actions.dataset.disclaimer].filter(Boolean).join('\n\n');
+      preview.value = summary;
+      contact.href = `https://wa.me/5544988335397?text=${encodeURIComponent(`${actions.dataset.message}\n\n${summary}`)}`;
+      share.href = `https://wa.me/?text=${encodeURIComponent(summary)}`;
+    };
+    new MutationObserver(update).observe(result, { attributes: true, attributeFilter: ['hidden', 'data-share-summary'] });
+    update();
+  }
+</script>
+<style>
+  .tool-actions { margin-top: .8rem; }
+  .tool-actions .calc-disclaimer { margin: 0 0 .9rem; }
+  .tool-action-links { display: flex; flex-wrap: wrap; gap: .6rem 1rem; align-items: center; }
+  details { margin-top: 1rem; }
+  summary { cursor: pointer; }
+  textarea { display: block; width: 100%; margin-block: .5rem; padding: .6rem; font: inherit; }
+</style>
