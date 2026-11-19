@@ -39,9 +39,14 @@ npx wrangler secret put AUTOMATION_WEBHOOK_SECRET # opcional (assinatura HMAC x-
 
 ## Conteúdo
 
-- Radar: `src/data/radar.ts`. Cada artigo novo passa por revisão (Provimento 205/2021 da OAB) antes do deploy.
 - Triagem: `src/data/diagnostico.ts`.
 - CSS: `src/styles/original.css` é a folha do site original, sem a importação do Google Fonts (as fontes agora são servidas pelo próprio site). Acréscimos ficam em `src/styles/additions.css`.
+
+### Agro Radar
+
+1. Adicione um `.md` a `src/content/radar/` com o endereço do artigo no nome do arquivo. Use o cabeçalho do piloto como modelo. Informe título, resumo, categoria, data (`AAAA-MM-DD`) e fontes. Se houver uma ferramenta relacionada, preencha `tool`.
+2. Mantenha `status: draft` durante a revisão editorial e jurídica. Execute `npm run deploy:preview` para conferir o artigo, a lista do Radar e o destaque na home. O sitemap público lista somente artigos aptos à publicação.
+3. Após a aprovação editorial, use `status: approved`. Um build de produção inclui o artigo a partir da data definida, no horário de Brasília. Publique no domínio oficial após a autorização de produção. A lista do Radar, os três destaques mais recentes e o sitemap são montados no build.
 
 ## Verificação
 

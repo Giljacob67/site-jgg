@@ -1,12 +1,17 @@
 ---
 import Base, { SITE } from '../../layouts/Base.astro';
 import SubHeader from '../../components/SubHeader.astro';
-import { radar, type RadarItem } from '../../data/radar';
+import { render } from 'astro:content';
+import { getRadar } from '../../data/radar-content';
 
-export function getStaticPaths() {
+export async function getStaticPaths() {
+  const radar = await getRadar({ includePreview: import.meta.env.MODE === 'preview' });
   return radar.map((item) => ({ params: { slug: item.slug }, props: { item } }));
 }
-const { item } = Astro.props as { item: RadarItem };
+const { item } = Astro.props;
+const markdown = item.kind === 'markdown' ? item : undefined;
+const Content = markdown ? (await render(markdown.entry)).Content : undefined;
+const notice = markdown?.notice ?? 'Conteúdo geral e informativo. Não constitui consulta, parecer ou recomendação jurídica para um caso concreto.';
 const path = `/radar/${item.slug}`;
 const article = {
   '@context': 'https://schema.org',
@@ -20,9 +25,35 @@ const article = {
   publisher: { '@type': 'Organization', name: 'JGG Group' },
 };
 ---
-<Base title={`${item.title} | JGG Group`} description={item.summary} path={path} og={{ title: item.title, description: item.summary, type: 'article', publishedTime: item.dateIso }} jsonLd={[article]}>
+<Base title={`${item.title} | JGG Group`} description={item.summary} path={item.published ? path : undefined} noindex={!item.published} og={{ title: item.title, description: item.summary, type: 'article', publishedTime: item.published ? item.dateIso : undefined }} jsonLd={item.published ? [article] : []}>
 <main class="subpage">
 <SubHeader cta="Avaliar meu cenário" href="/diagnostico" />
-<article class="article-page shell"><a href="/radar" class="back-link">← Voltar ao Agro Radar</a><span class="tag">{item.category}</span><p class="article-date"><time datetime={item.dateIso}>{item.date}</time> · {item.source}</p><h1>{item.title}</h1><p class="article-deck">{item.summary}</p>{item.sections.map((s) => <section><h2>{s.heading}</h2>{s.paragraphs.map((p) => <p>{p}</p>)}</section>)}<aside class="article-sources"><strong>Fontes oficiais consultadas</strong>{item.sources.map((s) => <a href={s.url} target="_blank" rel="noreferrer">{s.label} ↗</a>)}</aside><div class="article-disclaimer">Conteúdo geral e informativo. Não constitui consulta, parecer ou recomendação jurídica para um caso concreto.</div><a href="/diagnostico" class="button copper">Organizar meu cenário →</a></article>
+<article class:list={['article-page', 'shell', { 'article-page-markdown': markdown }]}>
+  <a href="/radar" class="back-link">← Voltar ao Agro Radar</a>
+  <span class="tag">{item.category}</span>
+  <p class="article-date">{!item.published && 'Prévia editorial · data prevista: '}<time datetime={item.dateIso}>{item.date}</time> · {item.source}</p>
+  <h1>{item.title}</h1>
+  <p class="article-deck">{item.summary}</p>
+  {Content && <div class="radar-markdown"><Content /></div>}
+  {item.kind === 'legacy' && item.sections.map((s) => <section><h2>{s.heading}</h2>{s.paragraphs.map((p) => <p>{p}</p>)}</section>)}
+  <aside class="article-sources">
+    <strong>{markdown ? 'Fontes consultadas' : 'Fontes oficiais consultadas'}</strong>
+    {item.sources.map((s) => s.url ? <a href={s.url} target="_blank" rel="noreferrer">{s.label} ↗</a> : <span>{s.label}</span>)}
+  </aside>
+  <div class="article-disclaimer">{notice}</div>
+  <div class="radar-actions">
+    {markdown?.tool && <a href={`/ferramentas/${markdown.tool}`} class="button copper">Abrir ferramenta relacionada →</a>}
+    <a href="/diagnostico" class={markdown?.tool ? 'agro-text-link' : 'button copper'}>Organizar meu cenário →</a>
+  </div>
+</article>
 </main>
 </Base>
+
+<style>
+  .article-page-markdown h1 { font-size: clamp(38px, 6.5vw, 82px); overflow-wrap: anywhere; }
+  .radar-markdown :global(li) { color: var(--muted); line-height: 1.8; }
+  .radar-markdown :global(blockquote) { border-inline-start: 3px solid var(--copper); margin-inline: 0; padding-inline-start: 1rem; }
+  .radar-markdown :global(code) { overflow-wrap: anywhere; }
+  .article-disclaimer { white-space: pre-line; }
+  .radar-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+</style>

@@ -1,6 +1,7 @@
-import { radar } from '../data/radar';
+import { getRadar } from '../data/radar-content';
 const SITE = 'https://jgggroup.com.br';
 const built = new Date().toISOString();
+const radar = await getRadar();
 const pages: [string, string, string, string][] = [
   ['', built, 'monthly', '1'],
   ['/diagnostico', built, 'monthly', '0.7'],

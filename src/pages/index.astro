@@ -4,12 +4,12 @@ import Logo from '../components/Logo.astro';
 import SiteNav from '../components/SiteNav.astro';
 import MarketTicker from '../components/MarketTicker.astro';
 import ContactForm from '../components/ContactForm.astro';
-import { radar } from '../data/radar';
+import { getRadar } from '../data/radar-content';
 import { cases } from '../data/jurisprudencia';
 
 const congress = 'https://www.congressonacional.leg.br/materias/medidas-provisorias/-/mpv/175190';
 const senate = 'https://www12.senado.leg.br/noticias/materias/2026/11/11/renegociacao-de-dividas-rurais-e-aprovada-pelo-senado-e-vai-a-sancao-presidencial';
-const latest = radar.slice(0, 3);
+const latest = (await getRadar({ includePreview: import.meta.env.MODE === 'preview' })).slice(0, 3);
 const areas = [
   ['Direito Agrário', 'Atuação nas relações jurídicas vinculadas à produção rural, à exploração da terra e aos instrumentos específicos do agronegócio.'],
   ['Imobiliário rural', 'Propriedade, posse, documentação de imóveis rurais, regularização fundiária e registros.'],
@@ -89,7 +89,7 @@ const tools = [
             <div class="agro-meta"><span>{item.category}</span><time datetime={item.dateIso}>{item.date}</time></div>
             <h3><a href={`/radar/${item.slug}`}>{item.title}</a></h3>
             <p>{item.summary}</p>
-            <footer><span>{item.source}</span><a href={`/radar/${item.slug}`}>Ler análise <span aria-hidden="true">↗</span></a></footer>
+            <footer><span>{item.published ? item.source : 'Prévia editorial'}</span><a href={`/radar/${item.slug}`}>Ler análise <span aria-hidden="true">↗</span></a></footer>
           </article>
         ))}
       </div>

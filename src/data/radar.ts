@@ -1,5 +1,5 @@
 // Conteúdo do JGG Agro Radar, copiado literalmente do site original (18/11/2026).
-// Para publicar um texto novo: acrescente um item aqui, revise conforme o Provimento 205/2021 e faça o deploy.
+// Os textos novos ficam na coleção Markdown em src/content/radar/.
 
 export type RadarSection = { heading: string; paragraphs: string[] };
 export type RadarSource = { label: string; url: string };
@@ -16,7 +16,7 @@ export type RadarItem = {
   sources: RadarSource[];
 };
 
-export const radarCategories = ['Todos', 'Crédito rural', 'Terra', 'Contratos', 'Ambiental', 'Tributário', 'Sucessão'];
+export const radarCategories = ['Crédito rural', 'Terra', 'Contratos', 'Ambiental', 'Tributário', 'Sucessão'] as const;
 
 export const radar: RadarItem[] = [
   {
