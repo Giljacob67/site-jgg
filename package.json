@@ -8,11 +8,14 @@
     "preview": "wrangler dev",
     "deploy": "astro build && wrangler deploy",
     "deploy:preview": "astro build --mode preview && wrangler deploy --env preview",
+    "deploy:terra-roxa": "PUBLIC_PREVIEW_ORIGIN=https://site-jgg-terra-roxa.jgggroup.workers.dev astro build --mode preview && wrangler deploy --env terra-roxa",
     "check:links": "node scripts/check-links.mjs"
   },
   "dependencies": {
+    "@fontsource-variable/archivo": "5.3.0",
     "@fontsource/dm-sans": "^5.3.0",
     "@fontsource/instrument-serif": "^5.3.0",
+    "@fontsource/jetbrains-mono": "5.3.0",
     "astro": "^7.4.13",
     "pdf-lib": "^1.17.1"
   },

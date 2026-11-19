@@ -7,12 +7,14 @@ import '@fontsource/instrument-serif/latin-400-italic.css';
 import '../styles/original.css';
 import '../styles/additions.css';
 import '../styles/agro-premium.css';
+import '../styles/terra-roxa.css';
 import serif from '@fontsource/instrument-serif/files/instrument-serif-latin-400-normal.woff2?url';
 import serifItalic from '@fontsource/instrument-serif/files/instrument-serif-latin-400-italic.woff2?url';
+import archivo from '@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2?url';
 import sans from '@fontsource/dm-sans/files/dm-sans-latin-400-normal.woff2?url';
 
 export const SITE = 'https://jgggroup.com.br';
-export const PREVIEW = 'https://site-jgg-agro-premium.jgggroup.workers.dev';
+export const PREVIEW = import.meta.env.PUBLIC_PREVIEW_ORIGIN ?? 'https://site-jgg-agro-premium.jgggroup.workers.dev';
 
 interface Props {
   title: string;
@@ -20,12 +22,13 @@ interface Props {
   /** Caminho canônico, como "/radar". Omitido em páginas de erro. */
   path?: string;
   noindex?: boolean;
+  terraRoxa?: boolean;
   og?: { title?: string; description?: string; type?: 'website' | 'article'; publishedTime?: string; image?: string };
   jsonLd?: Record<string, unknown>[];
   preload?: string[];
 }
 
-const { title, description, path, noindex = false, og = {}, jsonLd = [], preload = ['/jgg-logo-horizontal.svg'] } = Astro.props;
+const { title, description, path, noindex = false, terraRoxa = false, og = {}, jsonLd = [], preload = ['/jgg-logo-horizontal.svg'] } = Astro.props;
 const canonical = path === undefined ? undefined : path === '/' ? SITE : SITE + path;
 const ogType = og.type ?? 'website';
 const ogUrl = canonical ?? SITE;
@@ -71,15 +74,15 @@ const legalService = {
     <meta name="twitter:title" content={og.title ?? title} />
     <meta name="twitter:description" content={og.description ?? description} />
     <meta name="twitter:image" content={ogImage} />
-    <meta name="theme-color" content="#17382c" />
+    <meta name="theme-color" content={terraRoxa ? '#f3ede2' : '#17382c'} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap.xml" />
-    {[serif, serifItalic, sans].map((href) => <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />)}
+    {[serif, serifItalic, terraRoxa ? archivo : sans].map((href) => <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />)}
     {preload.map((href) => <link rel="preload" href={href} as="image" />)}
     <script type="application/ld+json" set:html={JSON.stringify(legalService)} />
     {jsonLd.map((d) => <script type="application/ld+json" set:html={JSON.stringify(d)} />)}
   </head>
-  <body>
+  <body class:list={{ 'terra-roxa': terraRoxa }}>
     {import.meta.env.MODE === 'preview' && <p class="agro-preview">Prévia da JGG · Use apenas dados fictícios nos formulários.</p>}
     <slot />
     <script>

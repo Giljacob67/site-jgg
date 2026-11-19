@@ -39,7 +39,7 @@ const article = {
   publisher: { '@type': 'Organization', name: 'JGG Group' },
 };
 ---
-<Base title={`${item.title} | JGG Group`} description={item.summary} path={item.published ? path : undefined} noindex={!item.published} og={{ title: item.title, description: item.summary, type: 'article', image: markdown?.image, publishedTime: item.published ? item.dateIso : undefined }} jsonLd={item.published ? [article] : []}>
+<Base terraRoxa={item.slug === 'impenhorabilidade-pequena-propriedade-rural'} title={`${item.title} | JGG Group`} description={item.summary} path={item.published ? path : undefined} noindex={!item.published} og={{ title: item.title, description: item.summary, type: 'article', image: markdown?.image, publishedTime: item.published ? item.dateIso : undefined }} jsonLd={item.published ? [article] : []}>
 <main class="subpage">
 <SubHeader cta="Avaliar meu cenário" href="/diagnostico" />
 <article class:list={['article-page', 'shell', { 'article-page-markdown': markdown }]}>

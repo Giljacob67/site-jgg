@@ -1,0 +1,384 @@
+@font-face {
+  font-family: Archivo;
+  src: url('@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+
+.terra-roxa {
+  --terra: #8a2d1c;
+  --terra-escura: #6e2216;
+  --mata: #17382c;
+  --papel: #f3ede2;
+  --palha: #e9e0d0;
+  --tinta: #1b1a17;
+  --soja: #d9b451;
+  --cream: var(--papel);
+  --paper: var(--papel);
+  --forest: var(--mata);
+  --ink: var(--tinta);
+  --copper: var(--terra);
+  --agro-sand: var(--soja);
+  --line: #1b1a174d;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  color: var(--tinta);
+  background: var(--papel);
+  font-family: Archivo, 'DM Sans', sans-serif;
+}
+
+.terra-roxa :is(.agro-cover, .agro-header, .agro-tools, .subpage) {
+  background: var(--papel);
+  color: var(--tinta);
+}
+
+.terra-roxa .agro-header {
+  border-bottom: 6px double var(--tinta);
+}
+
+.terra-roxa .agro-header .official-logo {
+  filter: brightness(0) saturate(100%) invert(17%) sepia(15%) saturate(1443%) hue-rotate(104deg);
+}
+
+.terra-roxa .agro-nav a {
+  font-weight: 600;
+}
+
+.terra-roxa .agro-nav a:not(.agro-nav-action):hover,
+.terra-roxa .agro-menu a:hover {
+  color: var(--terra);
+}
+
+.terra-roxa :is(.agro-nav-action, .agro-button),
+.terra-roxa .button.copper {
+  border: 1px solid var(--terra);
+  background: var(--terra);
+  color: var(--papel);
+  border-radius: 0;
+  white-space: normal;
+}
+
+.terra-roxa :is(.agro-nav-action, .agro-button):hover,
+.terra-roxa .button.copper:hover {
+  background: var(--terra-escura);
+  border-color: var(--terra-escura);
+  color: var(--papel);
+}
+
+.terra-roxa .agro-button-outline {
+  background: transparent;
+  color: var(--tinta);
+  border-color: var(--tinta);
+}
+
+.terra-roxa .agro-button-outline:hover {
+  background: var(--palha);
+  border-color: var(--tinta);
+  color: var(--tinta);
+}
+
+.terra-roxa .agro-menu summary {
+  border-color: var(--tinta);
+  color: var(--tinta);
+}
+
+.terra-roxa .agro-menu nav {
+  background: var(--papel);
+  color: var(--tinta);
+  border: 1px solid var(--tinta);
+}
+
+.terra-roxa .agro-menu nav a + a {
+  border-color: var(--line);
+}
+
+.terra-roxa :is(a, button, summary, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--terra);
+  outline-offset: 3px;
+}
+
+.terra-roxa :is(.agro-cover, .agro-header) :focus-visible {
+  outline-color: var(--terra) !important;
+}
+
+.terra-roxa :is(.market-bar, .agro-alert, .agro-team, .agro-contact-form, .agro-footer) :focus-visible {
+  outline-color: var(--papel) !important;
+}
+
+.terra-roxa .agro-alert :is(.agro-alert-heading, .agro-news) :focus-visible {
+  outline-color: var(--tinta) !important;
+}
+
+.terra-roxa .agro-home .market-bar {
+  background: var(--mata);
+  border-bottom: 3px solid var(--terra);
+  color: var(--papel);
+}
+
+.terra-roxa .agro-home :is(.market-label, .market-info) {
+  background: var(--mata);
+  color: var(--soja);
+}
+
+.terra-roxa .agro-home .market-viewport {
+  scrollbar-color: var(--soja) var(--mata);
+}
+
+.terra-roxa .market-label small {
+  font-size: .625rem;
+}
+
+.terra-roxa .market-motion {
+  min-height: 32px;
+  border-color: var(--soja);
+  color: var(--papel);
+  font-size: .75rem;
+}
+
+.terra-roxa :is(.market-quote strong, .market-quote b, .agro-meta time, .article-date time,
+  .calc-result h2, .agro-people span) {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.terra-roxa .agro-home :is(.market-quote > span, .market-quote > em, .market-quote strong > small) {
+  font-size: .7rem;
+}
+
+.terra-roxa .agro-home :is(.market-quote > span > i, .market-quote > em, .market-quote strong > small) {
+  color: #e1d7c5;
+}
+
+.terra-roxa .market-quote b {
+  font-size: .75rem;
+}
+
+.terra-roxa .market-quote b.up {
+  color: #bce0ab;
+}
+
+.terra-roxa .market-quote b.down {
+  color: #ffc1b4;
+}
+
+.terra-roxa .agro-hero {
+  min-height: auto;
+  padding-block: clamp(34px, 5.5vw, 74px);
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: clamp(22px, 4vw, 66px);
+  align-items: center;
+}
+
+.terra-roxa .agro-hero h1 {
+  font-size: clamp(3.45rem, 5.45vw, 6rem);
+  line-height: 1;
+  letter-spacing: -.03em;
+  overflow-wrap: anywhere;
+}
+
+.terra-roxa .agro-hero-lead {
+  max-width: 48ch;
+  margin: 1.25rem 0 1.55rem;
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+}
+
+.terra-roxa .agro-hero-photo {
+  width: 100%;
+  aspect-ratio: 5 / 4;
+  height: auto;
+  object-fit: cover;
+  object-position: 57% center;
+  border: 1px solid var(--tinta);
+  padding: .42rem;
+}
+
+.terra-roxa .agro-kicker {
+  color: var(--terra);
+  font-weight: 700;
+}
+
+.terra-roxa .agro-kicker::before {
+  background: currentColor;
+}
+
+.terra-roxa :is(.agro-cover, .agro-tools) em {
+  color: var(--terra);
+}
+
+.terra-roxa .agro-home h2 {
+  line-height: 1.04;
+  letter-spacing: -.025em;
+}
+
+.terra-roxa .agro-heading {
+  border-bottom: 5px double var(--tinta);
+  padding-bottom: 1rem;
+}
+
+.terra-roxa .agro-team .agro-heading {
+  border-color: var(--papel);
+}
+
+.terra-roxa .agro-alert {
+  color: var(--papel);
+  background: var(--terra);
+  border-radius: 0;
+}
+
+.terra-roxa .agro-alert-heading .agro-kicker {
+  display: inline-flex;
+  padding: .35rem .7rem;
+  background: var(--papel);
+  color: var(--terra);
+}
+
+.terra-roxa .agro-alert-heading .agro-kicker::before {
+  display: none;
+}
+
+.terra-roxa .agro-news {
+  border-radius: 0;
+  background: var(--papel);
+  color: var(--tinta);
+}
+
+.terra-roxa .agro-alert-card {
+  border-radius: 0;
+  background: var(--terra-escura);
+  border-color: #f3ede280;
+}
+
+.terra-roxa .agro-card {
+  border-radius: 0;
+  border-color: var(--tinta);
+}
+
+.terra-roxa .agro-card-featured {
+  border-top: 4px solid var(--terra);
+}
+
+.terra-roxa :is(.agro-news, .agro-card) a:not(.agro-button):hover {
+  color: var(--terra);
+}
+
+.terra-roxa .agro-tools .agro-card {
+  background: var(--palha);
+  box-shadow: 4px 4px 0 var(--tinta);
+}
+
+.terra-roxa .agro-tool h3 span {
+  color: var(--terra);
+}
+
+.terra-roxa .agro-team {
+  background: var(--mata);
+}
+
+.terra-roxa .agro-team :is(.agro-kicker, em),
+.terra-roxa :is(.agro-alert-card a, .agro-consent a, .agro-footer a:hover) {
+  color: var(--soja);
+}
+
+.terra-roxa :is(.agro-contact-form, .agro-footer) {
+  border-radius: 0;
+  background: var(--tinta);
+  color: var(--papel);
+}
+
+.terra-roxa .agro-contact-form :is(input:not([type=checkbox]), textarea) {
+  background: transparent;
+  border-color: #f3ede2a6;
+}
+
+.terra-roxa .agro-contact-form .agro-button {
+  background: var(--soja);
+  color: var(--tinta);
+  border-color: var(--soja);
+}
+
+.terra-roxa .agro-contact-form .agro-button:hover {
+  background: var(--papel);
+  color: var(--tinta);
+}
+
+.terra-roxa .subpage :is(.article-sources, .calculator-panel) {
+  border: 1px solid var(--tinta);
+  border-radius: 0;
+  background: var(--palha);
+}
+
+.terra-roxa .subpage :is(.article-sources, .calc-sources) a {
+  color: var(--terra);
+  overflow-wrap: anywhere;
+}
+
+.terra-roxa .article-page h1 {
+  font-family: var(--agro-serif);
+  font-size: clamp(2.6rem, 6.3vw, 5.5rem) !important;
+  line-height: 1.03;
+  letter-spacing: -.025em;
+}
+
+.terra-roxa .article-page :is(.article-deck, .radar-markdown p, .radar-markdown li) {
+  max-width: 72ch;
+  font-size: 1.0625rem;
+  line-height: 1.72;
+}
+
+.terra-roxa .article-page .article-byline a,
+.terra-roxa .radar-markdown a {
+  color: var(--terra);
+  text-decoration: underline;
+  text-underline-offset: .18em;
+}
+
+.terra-roxa .article-page .article-share {
+  border-bottom: 5px double var(--tinta);
+  padding-bottom: 1rem;
+}
+
+.terra-roxa .calculator-grid :is(input, select) {
+  min-height: 44px;
+  width: 100%;
+  background: var(--papel);
+  color: var(--tinta);
+  border-color: #6f6153;
+}
+
+.terra-roxa .calc-result {
+  background: var(--papel);
+  color: var(--tinta);
+  border: 1px solid var(--terra);
+  border-inline-start-width: 4px;
+}
+
+.terra-roxa .agro-text-link {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 720px) {
+  .terra-roxa .agro-hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .terra-roxa .agro-hero h1 {
+    font-size: clamp(2.8rem, 10vw, 4.35rem);
+    line-height: 1.05;
+  }
+
+  .terra-roxa .agro-hero-photo {
+    display: none;
+  }
+
+  .terra-roxa .agro-home h2 {
+    font-size: clamp(2.55rem, 9vw, 4rem);
+  }
+}

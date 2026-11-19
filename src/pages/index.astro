@@ -49,7 +49,7 @@ const tools = [
   title="JGG Group — Inteligência jurídica para o agronegócio"
   description="Estratégia jurídica para crédito rural, terra, contratos, patrimônio, sucessão e tributação no agronegócio."
   path="/"
-  preload={['/jgg-logo-horizontal.svg', '/hero-agro.webp']}
+  terraRoxa
 >
 <a class="agro-skip" href="#conteudo">Ir para o conteúdo</a>
 <div class="agro-home">
@@ -62,13 +62,19 @@ const tools = [
       </div>
     </header>
     <section class="agro-wrap agro-hero" aria-labelledby="hero-title">
-      <p class="agro-kicker">Advocacia especializada · Direito Agrário · PR e MT</p>
-      <h1 id="hero-title">O campo move o Brasil.<br /><em>O direito protege</em><br /> quem faz acontecer.</h1>
-      <p>Crédito rural, garantias, sucessão e contratos para quem produz e investe no campo.</p>
-      <div class="agro-actions">
-        <a class="agro-button" href="#solucoes">Encontre orientação para sua situação</a>
-        <a class="agro-button agro-button-outline" href="/agro-alerta">Acompanhe o Agro Alerta <span aria-hidden="true">↗</span></a>
+      <div>
+        <p class="agro-kicker">Advocacia especializada · Direito Agrário · PR e MT</p>
+        <h1 id="hero-title">O campo move o Brasil.<br /><em>O direito protege</em><br /> quem faz acontecer.</h1>
+        <p class="agro-hero-lead">Crédito rural, garantias, sucessão e contratos para quem produz e investe no campo.</p>
+        <div class="agro-actions">
+          <a class="agro-button" href="#solucoes">Encontre orientação para sua situação</a>
+          <a class="agro-button agro-button-outline" href="/agro-alerta">Acompanhe o Agro Alerta <span aria-hidden="true">↗</span></a>
+        </div>
       </div>
+      <picture>
+        <source media="(min-width: 721px)" srcset="/hero-agro.webp" />
+        <img class="agro-hero-photo" alt="" width="1672" height="941" decoding="async" />
+      </picture>
     </section>
   </div>
 
